@@ -1,14 +1,20 @@
 import {
+  ArrowLeft,
   ArrowRight,
+  CreditCard,
   Heart,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Menu,
+  Minus,
   PackageCheck,
+  Plus,
   Search,
   Settings,
+  ShieldCheck,
   ShoppingBag,
+  Trash2,
   UserRound,
   X,
 } from "lucide-react";
@@ -18,6 +24,7 @@ import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
 import toysImage from "./assets/home/hero-toys.png";
 import { useAuth } from "./auth/useAuth";
+import { apiClient } from "./api/client";
 import { useCartStore } from "./stores/cartStore";
 
 const slides = [
@@ -185,10 +192,10 @@ function Header() {
             <Search aria-hidden="true" size={18} />
             <input aria-label="Buscar productos" placeholder="Buscar productos..." />
           </label>
-          <button aria-label={`Carrito con ${itemCount} productos`} className="icon-button">
+          <Link aria-label={`Carrito con ${itemCount} productos`} className="icon-button" to="/carrito">
             <ShoppingBag size={21} />
             {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
-          </button>
+          </Link>
           <Link aria-label="Mi cuenta" className="icon-button" to="/perfil">
             <UserRound size={21} />
           </Link>
@@ -717,6 +724,115 @@ function ClothingPage() {
   );
 }
 
+function CartPage() {
+  const { user } = useAuth();
+  const clearCart = useCartStore((state) => state.clearCart);
+  const decreaseItem = useCartStore((state) => state.decreaseItem);
+  const increaseItem = useCartStore((state) => state.increaseItem);
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const [checkoutError, setCheckoutError] = useState("");
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const itemCount = items.reduce((total, item) => total + item.quantity, 0);
+
+  const handleCheckout = async () => {
+    if (!user) {
+      setCheckoutError("Inicia sesión para crear el pedido y continuar al pago.");
+      return;
+    }
+
+    setCheckoutError("");
+    setIsCheckingOut(true);
+
+    try {
+      const orderResponse = await apiClient.post<{ id: number }>("/orders", {
+        items: items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+      });
+      const paymentResponse = await apiClient.post<{ checkoutUrl: string }>(
+        "/payments/create-preference",
+        { orderId: orderResponse.data.id },
+      );
+
+      if (!paymentResponse.data.checkoutUrl) {
+        throw new Error("No se recibió la URL de pago.");
+      }
+
+      clearCart();
+      window.location.assign(paymentResponse.data.checkoutUrl);
+    } catch {
+      setCheckoutError(
+        "No pudimos iniciar el pago. Verifica tu sesión, el stock y la configuración de pagos.",
+      );
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
+  return (
+    <div className="site-page cart-page">
+      <Header />
+      <main className="cart-main section-shell">
+        <div className="cart-heading">
+          <div>
+            <div className="breadcrumbs"><Link to="/">Inicio</Link><span>/</span><span>Carrito</span></div>
+            <span className="section-kicker">Tu selección</span>
+            <h1>Bolsa de compras</h1>
+            <p>{itemCount ? `${itemCount} producto${itemCount === 1 ? "" : "s"} listo${itemCount === 1 ? "" : "s"} para acompañar sus aventuras.` : "Aún no agregaste productos a tu bolsa."}</p>
+          </div>
+          {items.length > 0 && <button className="cart-clear" type="button" onClick={clearCart}>Vaciar bolsa</button>}
+        </div>
+
+        {items.length === 0 ? (
+          <section className="cart-empty">
+            <ShoppingBag size={34} />
+            <h2>Tu bolsa está esperando.</h2>
+            <p>Descubre productos pensados para sus paseos, juegos y momentos de descanso.</p>
+            <Link to="/">Explorar tienda <ArrowRight size={17} /></Link>
+          </section>
+        ) : (
+          <div className="cart-layout">
+            <section className="cart-items" aria-label="Productos en tu carrito">
+              {items.map((item) => (
+                <article className="cart-item" key={item.productId}>
+                  <div className="cart-item-art"><ShoppingBag size={23} /></div>
+                  <div className="cart-item-info"><span>Triopi Petshop</span><h2>{item.name}</h2><strong>S/ {item.price.toFixed(2)}</strong></div>
+                  <div className="cart-quantity" aria-label={`Cantidad de ${item.name}`}>
+                    <button aria-label={`Reducir ${item.name}`} type="button" onClick={() => decreaseItem(item.productId)}><Minus size={15} /></button>
+                    <span>{item.quantity}</span>
+                    <button aria-label={`Aumentar ${item.name}`} type="button" onClick={() => increaseItem(item.productId)}><Plus size={15} /></button>
+                  </div>
+                  <strong className="cart-item-total">S/ {(item.price * item.quantity).toFixed(2)}</strong>
+                  <button aria-label={`Eliminar ${item.name}`} className="cart-remove" type="button" onClick={() => removeItem(item.productId)}><Trash2 size={18} /></button>
+                </article>
+              ))}
+            </section>
+
+            <aside className="cart-summary">
+              <span className="section-kicker">Resumen</span>
+              <h2>Tu pedido</h2>
+              <div className="cart-summary-row"><span>Subtotal</span><strong>S/ {subtotal.toFixed(2)}</strong></div>
+              <div className="cart-summary-row"><span>Envío</span><span>Se calcula al pagar</span></div>
+              <div className="cart-total"><span>Total estimado</span><strong>S/ {subtotal.toFixed(2)}</strong></div>
+              {checkoutError && <p className="cart-error">{checkoutError}</p>}
+              <button className="cart-checkout" disabled={isCheckingOut} type="button" onClick={handleCheckout}>
+                <CreditCard size={18} /> {isCheckingOut ? "Preparando pago..." : "Continuar al pago"}
+              </button>
+              {!user && <p className="cart-login-hint">El pago requiere una sesión activa. El backend protege los pedidos con tu cuenta.</p>}
+              <div className="cart-security"><ShieldCheck size={18} /><span>El total y el stock se validan de forma segura en el backend.</span></div>
+              <Link className="cart-continue" to="/"><ArrowLeft size={16} /> Seguir comprando</Link>
+            </aside>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
 function ProfilePage() {
   const { logout, user } = useAuth();
   const profile = user ?? {
@@ -828,6 +944,7 @@ function App() {
       <Route element={<ToysPage />} path="/juguetes" />
       <Route element={<ClothingPage />} path="/ropa" />
       <Route element={<ProfilePage />} path="/perfil" />
+      <Route element={<CartPage />} path="/carrito" />
     </Routes>
   );
 }

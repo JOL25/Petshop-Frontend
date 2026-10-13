@@ -36,6 +36,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem("petshop-user");
         setUser(null);
       },
+      updateUser: (nextUser) => {
+        localStorage.setItem("petshop-user", JSON.stringify(nextUser));
+        setUser(nextUser);
+      },
     }),
     [user],
   );

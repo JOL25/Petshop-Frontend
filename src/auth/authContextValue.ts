@@ -11,6 +11,7 @@ export type AuthContextValue = {
   user: AuthUser | null;
   login: (token: string, user: AuthUser) => void;
   logout: () => void;
+  updateUser: (user: AuthUser) => void;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

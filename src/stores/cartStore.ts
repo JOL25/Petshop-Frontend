@@ -6,6 +6,7 @@ export type CartItem = {
   name: string;
   price: number;
   quantity: number;
+  stock?: number;
 };
 
 type CartState = {
@@ -15,6 +16,7 @@ type CartState = {
   decreaseItem: (productId: number) => void;
   increaseItem: (productId: number) => void;
   removeItem: (productId: number) => void;
+  replaceItems: (items: CartItem[]) => void;
 };
 
 export const useCartStore = create<CartState>()(
@@ -36,7 +38,11 @@ export const useCartStore = create<CartState>()(
               cartItem.productId === item.productId
                 ? {
                     ...cartItem,
-                    quantity: cartItem.quantity + item.quantity,
+                    ...item,
+                    quantity: Math.min(
+                      cartItem.quantity + item.quantity,
+                      item.stock ?? Number.MAX_SAFE_INTEGER,
+                    ),
                   }
                 : cartItem,
             ),
@@ -50,7 +56,7 @@ export const useCartStore = create<CartState>()(
         set((state) => ({
           items: state.items.map((item) =>
             item.productId === productId
-              ? { ...item, quantity: item.quantity + 1 }
+              ? { ...item, quantity: Math.min(item.quantity + 1, item.stock ?? Number.MAX_SAFE_INTEGER) }
               : item,
           ),
         })),
@@ -73,6 +79,7 @@ export const useCartStore = create<CartState>()(
           };
         }),
       clearCart: () => set({ items: [] }),
+      replaceItems: (items) => set({ items }),
     }),
     {
       name: "petshop-cart",

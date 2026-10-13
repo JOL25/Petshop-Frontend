@@ -29,6 +29,28 @@ import { useAuth } from "./auth/useAuth";
 import { apiClient } from "./api/client";
 import { useCartStore } from "./stores/cartStore";
 
+type ApiProduct = {
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
+  categoryName: string;
+};
+
+type ApiOrder = {
+  id: number;
+  status: "PENDING" | "PAID" | "CANCELLED";
+  total: number;
+  createdAt: string;
+};
+
+type ApiProfile = {
+  id: number;
+  name: string;
+  email: string;
+  role: "ADMIN" | "CLIENT";
+};
+
 const slides = [
   {
     eyebrow: "Colección esencial",
@@ -331,6 +353,13 @@ function CategoriesSection() {
 
 function BestSellersSection() {
   const addItem = useCartStore((state) => state.addItem);
+  const [catalog, setCatalog] = useState<ApiProduct[]>([]);
+
+  useEffect(() => {
+    apiClient.get<ApiProduct[]>("/products")
+      .then((response) => setCatalog(response.data.filter((product) => product.stock > 0).slice(0, 4)))
+      .catch(() => setCatalog([]));
+  }, []);
 
   return (
     <section className="best-sellers" id="mas-vendidos">
@@ -344,31 +373,31 @@ function BestSellersSection() {
         </div>
 
         <div className="product-grid">
-          {products.map((product, index) => (
+          {catalog.map((product, index) => (
             <article className="product-card animated-card" key={product.name}>
               <div className="product-image-wrap">
-                {product.badge && <span className="product-badge">{product.badge}</span>}
                 <img
                   alt={product.name}
                   className="product-image"
-                  src={product.image}
-                  style={{ objectPosition: product.position }}
+                  src={products[index % products.length].image}
+                  style={{ objectPosition: products[index % products.length].position }}
                 />
               </div>
               <div className="product-info">
-                <span>{product.category}</span>
+                <span>{product.categoryName}</span>
                 <h3>{product.name}</h3>
                 <div className="product-meta">
                   <strong>S/ {product.price.toFixed(2)}</strong>
-                  <span>{product.rating.toFixed(1)} ★</span>
+                  <span>{product.stock} disponibles</span>
                 </div>
                 <button
                   onClick={() =>
                     addItem({
-                      productId: index + 1,
+                      productId: product.id,
                       name: product.name,
                       price: product.price,
                       quantity: 1,
+                      stock: product.stock,
                     })
                   }
                 >
@@ -734,13 +763,36 @@ function CartPage() {
   const increaseItem = useCartStore((state) => state.increaseItem);
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
+  const replaceItems = useCartStore((state) => state.replaceItems);
   const [checkoutError, setCheckoutError] = useState("");
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [catalogNotice, setCatalogNotice] = useState("");
+
+  useEffect(() => {
+    apiClient.get<ApiProduct[]>("/products")
+      .then((response) => {
+        const catalog = new Map(response.data.map((product) => [product.id, product]));
+        const currentItems = useCartStore.getState().items;
+        const syncedItems = currentItems.flatMap((item) => {
+          const product = catalog.get(item.productId);
+          if (!product || product.stock < 1) return [];
+          return [{ productId: product.id, name: product.name, price: product.price, quantity: Math.min(item.quantity, product.stock), stock: product.stock }];
+        });
+        if (syncedItems.length !== currentItems.length) setCatalogNotice("Actualizamos tu bolsa: algunos productos ya no estan disponibles.");
+        replaceItems(syncedItems);
+      })
+      .catch(() => setCatalogNotice("No pudimos actualizar el stock. Se validara antes del pago."));
+  }, [replaceItems]);
 
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   const handleCheckout = async () => {
+    if (items.length === 0) {
+      setCheckoutError("Agrega productos disponibles antes de continuar.");
+      return;
+    }
+
     if (!user) {
       setCheckoutError("Inicia sesión para crear el pedido y continuar al pago.");
       return;
@@ -790,6 +842,7 @@ function CartPage() {
           {items.length > 0 && <button className="cart-clear" type="button" onClick={clearCart}>Vaciar bolsa</button>}
         </div>
 
+        {catalogNotice && <p className="cart-error">{catalogNotice}</p>}
         {items.length === 0 ? (
           <section className="cart-empty">
             <ShoppingBag size={34} />
@@ -807,7 +860,7 @@ function CartPage() {
                   <div className="cart-quantity" aria-label={`Cantidad de ${item.name}`}>
                     <button aria-label={`Reducir ${item.name}`} type="button" onClick={() => decreaseItem(item.productId)}><Minus size={15} /></button>
                     <span>{item.quantity}</span>
-                    <button aria-label={`Aumentar ${item.name}`} type="button" onClick={() => increaseItem(item.productId)}><Plus size={15} /></button>
+                    <button aria-label={`Aumentar ${item.name}`} disabled={item.quantity >= (item.stock ?? Number.MAX_SAFE_INTEGER)} type="button" onClick={() => increaseItem(item.productId)}><Plus size={15} /></button>
                   </div>
                   <strong className="cart-item-total">S/ {(item.price * item.quantity).toFixed(2)}</strong>
                   <button aria-label={`Eliminar ${item.name}`} className="cart-remove" type="button" onClick={() => removeItem(item.productId)}><Trash2 size={18} /></button>
@@ -929,6 +982,75 @@ function AuthPage() {
 }
 
 function ProfilePage() {
+  const { logout, updateUser, user } = useAuth();
+  const [profile, setProfile] = useState<ApiProfile | null>(null);
+  const [orders, setOrders] = useState<ApiOrder[]>([]);
+  const [draft, setDraft] = useState({ name: "", email: "", password: "" });
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useRevealCards();
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([apiClient.get<ApiProfile>("/users/me"), apiClient.get<ApiOrder[]>("/orders/my-orders")])
+      .then(([profileResponse, ordersResponse]) => {
+        setProfile(profileResponse.data);
+        setDraft({ name: profileResponse.data.name, email: profileResponse.data.email, password: "" });
+        setOrders(ordersResponse.data);
+      })
+      .catch(() => setMessage("No pudimos cargar tu informacion. Intenta actualizar la pagina."))
+      .finally(() => setIsLoading(false));
+  }, [user]);
+
+  const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setMessage("");
+    setIsSaving(true);
+    try {
+      const response = await apiClient.put<{ profile: ApiProfile; token: string }>("/users/me", draft);
+      setProfile(response.data.profile);
+      setDraft({ name: response.data.profile.name, email: response.data.profile.email, password: "" });
+      updateUser({ id: response.data.profile.id, name: response.data.profile.name, email: response.data.profile.email, role: response.data.profile.role });
+      localStorage.setItem("petshop-token", response.data.token);
+      setIsEditing(false);
+      setMessage("Tus datos se guardaron correctamente.");
+    } catch {
+      setMessage("No pudimos guardar los cambios. Revisa los datos e intenta otra vez.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!user) {
+    return <div className="site-page profile-page"><Header /><main className="auth-main"><section className="auth-card auth-card--signed"><UserRound size={30} /><span className="section-kicker">Mi cuenta</span><h1>Inicia sesion para ver tu perfil.</h1><p>Tu informacion y tus pedidos estan protegidos en tu cuenta.</p><Link to="/acceso">Ir a iniciar sesion <ArrowRight size={17} /></Link></section></main></div>;
+  }
+
+  const activeProfile = profile ?? user;
+  const firstName = activeProfile.name.split(" ")[0];
+  const initials = activeProfile.name.split(" ").map((part) => part[0]).slice(0, 2).join("");
+
+  return (
+    <div className="site-page profile-page">
+      <Header />
+      <main className="profile-main section-shell">
+        <div className="profile-intro"><div><div className="breadcrumbs"><Link to="/">Inicio</Link><span>/</span><span>Mi cuenta</span></div><span className="section-kicker">Mi espacio</span><h1>Hola, {firstName}.</h1><p>Gestiona tu informacion, pedidos y favoritos desde un solo lugar.</p></div></div>
+        <div className="profile-layout">
+          <aside className="profile-sidebar animated-card"><div className="profile-avatar">{initials}</div><h2>{activeProfile.name}</h2><p>{activeProfile.email}</p><span className="profile-role">{activeProfile.role === "ADMIN" ? "Administrador" : "Cliente Triopi"}</span><nav aria-label="Navegacion de perfil" className="profile-nav"><a className="profile-nav-item profile-nav-item--active" href="#mi-perfil"><UserRound size={18} /> Mi perfil</a><a className="profile-nav-item" href="#mis-pedidos"><PackageCheck size={18} /> Mis pedidos</a><a className="profile-nav-item" href="#favoritos"><Heart size={18} /> Favoritos</a><a className="profile-nav-item" href="#ajustes"><Settings size={18} /> Ajustes</a></nav><button className="profile-logout" type="button" onClick={logout}><LogOut size={17} /> Cerrar sesion</button></aside>
+          <div className="profile-content">
+            <section className="profile-card animated-card" id="mi-perfil"><form onSubmit={saveProfile}><div className="profile-card-heading"><div><span className="section-kicker">Datos personales</span><h2>Tu perfil</h2></div><button type={isEditing ? "submit" : "button"} disabled={isSaving} onClick={() => !isEditing && setIsEditing(true)}>{isSaving ? "Guardando..." : isEditing ? "Guardar cambios" : "Editar informacion"}</button></div><div className="profile-fields"><label>Nombre completo<input disabled={!isEditing} onChange={(event) => setDraft({ ...draft, name: event.target.value })} required value={isEditing ? draft.name : activeProfile.name} /></label><label>Correo electronico<input disabled={!isEditing} onChange={(event) => setDraft({ ...draft, email: event.target.value })} required type="email" value={isEditing ? draft.email : activeProfile.email} /></label>{isEditing && <label>Contrasena nueva (opcional)<input autoComplete="new-password" minLength={8} onChange={(event) => setDraft({ ...draft, password: event.target.value })} placeholder="Deja vacio para conservarla" type="password" value={draft.password} /></label>}</div></form>{message && <p className="auth-error">{message}</p>}</section>
+            <section className="profile-card animated-card" id="mis-pedidos"><div className="profile-card-heading"><div><span className="section-kicker">Historial</span><h2>Pedidos recientes</h2></div></div><div className="profile-orders">{isLoading ? <p>Cargando pedidos...</p> : orders.length === 0 ? <p>Aun no tienes pedidos. Cuando completes una compra aparecera aqui.</p> : orders.map((order) => <article className="profile-order" key={order.id}><div className="profile-order-icon"><PackageCheck size={20} /></div><div><strong>#{order.id}</strong><span>{new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(new Date(order.createdAt))}</span></div><span className={`order-status ${order.status === "PENDING" ? "order-status--shipping" : ""}`}>{order.status === "PENDING" ? "Pendiente de pago" : order.status === "PAID" ? "Pagado" : "Cancelado"}</span><strong>S/ {Number(order.total).toFixed(2)}</strong></article>)}</div></section>
+            <section className="profile-favorites animated-card" id="favoritos"><Heart size={22} /><div><span className="section-kicker">Tus favoritos</span><h2>Aun no guardaste productos.</h2><p>Explora las colecciones y guarda lo que mas le guste.</p></div><Link to="/">Explorar tienda <ArrowRight size={16} /></Link></section>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export function LegacyProfilePage() {
   const { logout, user } = useAuth();
   const profile = user ?? {
     id: 0,

@@ -913,7 +913,7 @@ function AuthPage() {
               <button className={mode === "login" ? "auth-tab auth-tab--active" : "auth-tab"} type="button" onClick={() => { setMode("login"); setError(""); }}>Iniciar sesión</button>
               <button className={mode === "register" ? "auth-tab auth-tab--active" : "auth-tab"} type="button" onClick={() => { setMode("register"); setError(""); }}>Crear cuenta</button>
             </div>
-            <form className="auth-form" onSubmit={submitAuth}>
+            <form className="auth-form" key={mode} onSubmit={submitAuth}>
               {mode === "register" && <label>Nombre completo<input autoComplete="name" onChange={(event) => setName(event.target.value)} placeholder="Tu nombre" required value={name} /></label>}
               <label>Correo electrónico<div className="auth-input"><Mail size={17} /><input autoComplete="email" onChange={(event) => setEmail(event.target.value)} placeholder="tu@correo.com" required type="email" value={email} /></div></label>
               <label>Contraseña<div className="auth-input"><LockKeyhole size={17} /><input autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} onChange={(event) => setPassword(event.target.value)} placeholder="Mínimo 8 caracteres" required type="password" value={password} /></div></label>

@@ -1,54 +1,394 @@
-import { PawPrint, ShoppingBag } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  Search,
+  ShoppingBag,
+  UserRound,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, Route, Routes } from "react-router-dom";
+import collarImage from "./assets/home/hero-collars.png";
+import clothingImage from "./assets/home/hero-clothing.png";
+import toysImage from "./assets/home/hero-toys.png";
 import { useCartStore } from "./stores/cartStore";
 
-function HomePage() {
+const slides = [
+  {
+    eyebrow: "Colección esencial",
+    title: "Collares con carácter",
+    description:
+      "Diseños resistentes y cómodos para acompañar cada paseo con estilo.",
+    image: collarImage,
+    imagePosition: "center",
+  },
+  {
+    eyebrow: "Diversión sin pausa",
+    title: "Juguetes para explorar",
+    description:
+      "Texturas, formas y movimiento para mantener su curiosidad siempre activa.",
+    image: toysImage,
+    imagePosition: "center",
+  },
+  {
+    eyebrow: "Comodidad diaria",
+    title: "Ropa que los abraza",
+    description:
+      "Prendas suaves y funcionales, pensadas para protegerlos con elegancia.",
+    image: clothingImage,
+    imagePosition: "center",
+  },
+];
+
+const categories = [
+  {
+    name: "Ropa",
+    description: "Comodidad y estilo para cada temporada",
+    image: clothingImage,
+    className: "category-card category-card--wide",
+  },
+  {
+    name: "Collares",
+    description: "Resistencia que acompaña cada aventura",
+    image: collarImage,
+    className: "category-card",
+  },
+  {
+    name: "Juguetes",
+    description: "Diversión duradera para mentes curiosas",
+    image: toysImage,
+    className: "category-card",
+  },
+];
+
+const products = [
+  {
+    category: "Collares",
+    name: "Collar cuero Terra",
+    price: 45,
+    rating: 4.9,
+    image: collarImage,
+    position: "72% center",
+    badge: "Popular",
+  },
+  {
+    category: "Ropa",
+    name: "Suéter Active Cream",
+    price: 38,
+    rating: 4.8,
+    image: clothingImage,
+    position: "72% center",
+  },
+  {
+    category: "Juguetes",
+    name: "Set de juego Natural",
+    price: 29,
+    rating: 5,
+    image: toysImage,
+    position: "68% 78%",
+  },
+  {
+    category: "Ropa",
+    name: "Abrigo Cozy Walk",
+    price: 52,
+    rating: 4.7,
+    image: clothingImage,
+    position: "78% center",
+  },
+];
+
+function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const itemCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0),
   );
 
   return (
-    <main className="min-h-screen bg-amber-50 text-slate-900">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link className="flex items-center gap-2 text-xl font-bold" to="/">
-          <PawPrint className="text-orange-600" />
-          Triopi Petshop
+    <header className="site-header">
+      <div className="header-inner">
+        <Link className="brand" to="/">
+          Triopi <span>Petshop</span>
         </Link>
 
-        <button
-          className="flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-sm"
-          type="button"
+        <nav className={`main-nav ${menuOpen ? "main-nav--open" : ""}`}>
+          <Link className="nav-link nav-link--active" to="/">
+            Inicio
+          </Link>
+          <a className="nav-link" href="#categorias">
+            Collares
+          </a>
+          <a className="nav-link" href="#categorias">
+            Juguetes
+          </a>
+          <a className="nav-link" href="#categorias">
+            Ropa
+          </a>
+          <a className="nav-link" href="#footer">
+            Nosotros
+          </a>
+        </nav>
+
+        <div className="header-actions">
+          <label className="search-box">
+            <Search aria-hidden="true" size={18} />
+            <input aria-label="Buscar productos" placeholder="Buscar productos..." />
+          </label>
+          <button aria-label={`Carrito con ${itemCount} productos`} className="icon-button">
+            <ShoppingBag size={21} />
+            {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
+          </button>
+          <button aria-label="Mi cuenta" className="icon-button">
+            <UserRound size={21} />
+          </button>
+          <button
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            className="menu-button"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function HeroSlider() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setActiveSlide((current) => (current + 1) % slides.length);
+    }, 3000);
+
+    return () => window.clearTimeout(timeout);
+  }, [activeSlide]);
+
+  const changeSlide = (direction: number) => {
+    setActiveSlide(
+      (current) => (current + direction + slides.length) % slides.length,
+    );
+  };
+
+  return (
+    <section
+      aria-label="Colecciones destacadas"
+      aria-roledescription="carrusel"
+      className="hero-slider"
+    >
+      {slides.map((slide, index) => (
+        <article
+          aria-hidden={activeSlide !== index}
+          className={`hero-slide ${activeSlide === index ? "hero-slide--active" : ""}`}
+          key={slide.title}
         >
-          <ShoppingBag size={18} />
-          Carrito ({itemCount})
+          <img
+            alt=""
+            className="hero-image"
+            src={slide.image}
+            style={{ objectPosition: slide.imagePosition }}
+          />
+          <div className="hero-overlay" />
+          <div className="hero-content">
+            <span className="eyebrow">{slide.eyebrow}</span>
+            <h1>{slide.title}</h1>
+            <p>{slide.description}</p>
+            <a className="primary-button" href="#mas-vendidos">
+              Explorar tienda <ArrowRight size={18} />
+            </a>
+          </div>
+        </article>
+      ))}
+
+      <div className="slider-controls">
+        <button aria-label="Colección anterior" onClick={() => changeSlide(-1)}>
+          <ChevronLeft />
         </button>
-      </nav>
+        <button aria-label="Siguiente colección" onClick={() => changeSlide(1)}>
+          <ChevronRight />
+        </button>
+      </div>
 
-      <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 md:grid-cols-2">
+      <div className="slider-dots">
+        {slides.map((slide, index) => (
+          <button
+            aria-label={`Mostrar ${slide.title}`}
+            aria-pressed={activeSlide === index}
+            className={activeSlide === index ? "slider-dot--active" : ""}
+            key={slide.title}
+            onClick={() => setActiveSlide(index)}
+          >
+            <span />
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CategoriesSection() {
+  return (
+    <section className="section-shell" id="categorias">
+      <div className="section-heading">
         <div>
-          <span className="font-semibold text-orange-600">
-            Frontend inicializado
-          </span>
-          <h1 className="mt-4 text-5xl font-black tracking-tight">
-            Todo listo para construir la tienda.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-slate-600">
-            React, TypeScript, Tailwind, Router, React Query, formularios,
-            validación, estado global y pruebas ya están configurados.
-          </p>
+          <span className="section-kicker">Encuentra su favorito</span>
+          <h2>Categorías</h2>
+          <p>Todo lo que necesita para disfrutar cada aventura.</p>
+        </div>
+        <a className="text-link" href="#mas-vendidos">
+          Ver todo <ArrowRight size={16} />
+        </a>
+      </div>
+
+      <div className="category-grid">
+        {categories.map((category) => (
+          <a
+            className={`${category.className} animated-card`}
+            href="#mas-vendidos"
+            key={category.name}
+          >
+            <img alt="" src={category.image} />
+            <div className="category-shade" />
+            <div className="category-copy">
+              <h3>{category.name}</h3>
+              <p>{category.description}</p>
+            </div>
+          </a>
+        ))}
+
+        <div className="category-quote animated-card">
+          <span>Diseñado para acompañarlos</span>
+          <blockquote>“Calidad que se siente en cada paso.”</blockquote>
+          <a href="#mas-vendidos">Ver colección</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BestSellersSection() {
+  const addItem = useCartStore((state) => state.addItem);
+
+  return (
+    <section className="best-sellers" id="mas-vendidos">
+      <div className="section-shell">
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Elegidos por nuestra comunidad</span>
+            <h2>Más vendidos</h2>
+            <p>Favoritos que combinan diseño, comodidad y resistencia.</p>
+          </div>
         </div>
 
-        <div className="rounded-3xl bg-white p-8 shadow-xl shadow-orange-100">
-          <h2 className="text-xl font-bold">Próximos módulos</h2>
-          <ul className="mt-5 space-y-3 text-slate-600">
-            <li>Catálogo y detalle de productos</li>
-            <li>Carrito y checkout con Mercado Pago</li>
-            <li>Autenticación y pedidos del cliente</li>
-            <li>Panel administrativo</li>
-          </ul>
+        <div className="product-grid">
+          {products.map((product, index) => (
+            <article className="product-card animated-card" key={product.name}>
+              <div className="product-image-wrap">
+                {product.badge && <span className="product-badge">{product.badge}</span>}
+                <img
+                  alt={product.name}
+                  className="product-image"
+                  src={product.image}
+                  style={{ objectPosition: product.position }}
+                />
+              </div>
+              <div className="product-info">
+                <span>{product.category}</span>
+                <h3>{product.name}</h3>
+                <div className="product-meta">
+                  <strong>S/ {product.price.toFixed(2)}</strong>
+                  <span>{product.rating.toFixed(1)} ★</span>
+                </div>
+                <button
+                  onClick={() =>
+                    addItem({
+                      productId: index + 1,
+                      name: product.name,
+                      price: product.price,
+                      quantity: 1,
+                    })
+                  }
+                >
+                  Agregar al carrito
+                </button>
+              </div>
+            </article>
+          ))}
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer id="footer">
+      <div className="footer-inner">
+        <div>
+          <Link className="footer-brand" to="/">
+            Triopi Petshop
+          </Link>
+          <p>Bienestar, diseño y alegría para quienes hacen hogar con nosotros.</p>
+        </div>
+        <div>
+          <h3>Atención</h3>
+          <a href="/">Política de privacidad</a>
+          <a href="/">Términos de servicio</a>
+        </div>
+        <div>
+          <h3>Servicios</h3>
+          <a href="/">Información de envío</a>
+          <a href="/">Contáctanos</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function HomePage() {
+  useEffect(() => {
+    const cards = document.querySelectorAll<HTMLElement>(".animated-card");
+
+    if (!("IntersectionObserver" in window)) {
+      cards.forEach((card) => card.classList.add("animated-card--visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const card = entry.target as HTMLElement;
+            card.classList.add("animated-card--visible", "animated-card--entering");
+            card.addEventListener(
+              "animationend",
+              () => card.classList.remove("animated-card--entering"),
+              { once: true },
+            );
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="site-page">
+      <Header />
+      <main>
+        <HeroSlider />
+        <CategoriesSection />
+        <BestSellersSection />
+      </main>
+      <Footer />
+    </div>
   );
 }
 

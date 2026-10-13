@@ -108,6 +108,15 @@ const collarProducts = [
   { name: "Collar aventura Oak", price: 52, rating: 4.9, badge: "Edición limitada", position: "58% center" },
 ];
 
+const toyProducts = [
+  { name: "Set de juego Natural", price: 29, rating: 5, badge: "Popular", position: "68% 78%" },
+  { name: "Pelota Bounce Moss", price: 18, rating: 4.8, badge: "Nuevo", position: "52% 62%" },
+  { name: "Cuerda Twist Terra", price: 24, rating: 4.7, position: "74% 72%" },
+  { name: "Mordedor Loop Clay", price: 22, rating: 4.9, position: "64% 80%" },
+  { name: "Dúo de exploración", price: 34, rating: 4.8, position: "58% 66%" },
+  { name: "Juguete Wild Pebble", price: 27, rating: 4.9, badge: "Edición limitada", position: "71% 74%" },
+];
+
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const itemCount = useCartStore((state) =>
@@ -135,9 +144,12 @@ function Header() {
           >
             Collares
           </NavLink>
-          <a className="nav-link" href="#categorias">
+          <NavLink
+            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            to="/juguetes"
+          >
             Juguetes
-          </a>
+          </NavLink>
           <a className="nav-link" href="#categorias">
             Ropa
           </a>
@@ -506,11 +518,101 @@ function CollarsPage() {
   );
 }
 
+function ToysPage() {
+  const addItem = useCartStore((state) => state.addItem);
+  useRevealCards();
+
+  return (
+    <div className="site-page toys-page">
+      <Header />
+      <main>
+        <section className="toys-hero">
+          <div className="toys-hero-copy">
+            <div className="breadcrumbs">
+              <Link to="/">Inicio</Link>
+              <span>/</span>
+              <span>Juguetes</span>
+            </div>
+            <span className="section-kicker">Diversión sin pausa</span>
+            <h1>Juguetes que despiertan su curiosidad.</h1>
+            <p>
+              Texturas, formas y movimiento para transformar cada momento en una nueva aventura.
+            </p>
+            <a className="toys-primary-button" href="#catalogo-juguetes">
+              Explorar juguetes <ArrowRight size={18} />
+            </a>
+          </div>
+          <div className="toys-hero-visual" aria-hidden="true">
+            <span className="toy-shape toy-shape--one" />
+            <span className="toy-shape toy-shape--two" />
+            <span className="toy-shape toy-shape--three" />
+            <img alt="" src={toysImage} />
+            <span className="toys-hero-label">Jugar también es cuidar</span>
+          </div>
+        </section>
+
+        <section className="toys-catalog section-shell" id="catalogo-juguetes">
+          <div className="toys-catalog-heading">
+            <div>
+              <span className="section-kicker">Catálogo</span>
+              <h2>Juguetes para explorar</h2>
+              <p>6 favoritos para morder, perseguir y descubrir.</p>
+            </div>
+            <span className="catalog-count">06 productos</span>
+          </div>
+
+          <div className="toy-filters" aria-label="Filtros de juguetes">
+            <button className="toy-filter-chip toy-filter-chip--active" type="button">Todos</button>
+            <button className="toy-filter-chip" type="button">Mordedores</button>
+            <button className="toy-filter-chip" type="button">Interactivos</button>
+            <button className="toy-filter-chip" type="button">Pelotas</button>
+          </div>
+
+          <div className="toy-grid">
+            {toyProducts.map((product, index) => (
+              <article className="toy-product-card animated-card" key={product.name}>
+                <div className="toy-product-image">
+                  {product.badge && <span className="product-badge">{product.badge}</span>}
+                  <img alt={product.name} src={toysImage} style={{ objectPosition: product.position }} />
+                  <span className="toy-image-index">0{index + 1}</span>
+                </div>
+                <div className="toy-product-info">
+                  <span>Juguetes</span>
+                  <h3>{product.name}</h3>
+                  <div>
+                    <strong>S/ {product.price.toFixed(2)}</strong>
+                    <span>{product.rating.toFixed(1)} ★</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addItem({
+                        productId: 201 + index,
+                        name: product.name,
+                        price: product.price,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    Agregar al carrito
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   return (
     <Routes>
       <Route element={<HomePage />} path="/" />
       <Route element={<CollarsPage />} path="/collares" />
+      <Route element={<ToysPage />} path="/juguetes" />
     </Routes>
   );
 }

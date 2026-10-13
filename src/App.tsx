@@ -378,6 +378,12 @@ function useRevealCards() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const card = entry.target as HTMLElement;
+
+            if (card.dataset.revealed === "true") {
+              return;
+            }
+
+            card.dataset.revealed = "true";
             card.classList.add("animated-card--visible", "animated-card--entering");
             card.addEventListener(
               "animationend",

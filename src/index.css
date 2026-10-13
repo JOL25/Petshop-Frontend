@@ -516,7 +516,7 @@ a {
 }
 
 .animated-card--entering {
-  animation: card-reveal 780ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: card-reveal 780ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .category-grid .animated-card:nth-child(2),

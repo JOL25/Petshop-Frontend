@@ -1,9 +1,13 @@
 import {
   ArrowRight,
+  Heart,
+  LogOut,
   ChevronLeft,
   ChevronRight,
   Menu,
+  PackageCheck,
   Search,
+  Settings,
   ShoppingBag,
   UserRound,
   X,
@@ -13,6 +17,7 @@ import { Link, NavLink, Route, Routes } from "react-router-dom";
 import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
 import toysImage from "./assets/home/hero-toys.png";
+import { useAuth } from "./auth/useAuth";
 import { useCartStore } from "./stores/cartStore";
 
 const slides = [
@@ -126,6 +131,11 @@ const clothingProducts = [
   { name: "Hoodie Weekend Clay", price: 56, rating: 5, badge: "Edición limitada", position: "58% center" },
 ];
 
+const profileOrders = [
+  { id: "#TR-2048", date: "12 oct 2026", status: "En camino", total: "S/ 87.00" },
+  { id: "#TR-1982", date: "28 sep 2026", status: "Entregado", total: "S/ 45.00" },
+];
+
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const itemCount = useCartStore((state) =>
@@ -179,9 +189,9 @@ function Header() {
             <ShoppingBag size={21} />
             {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
           </button>
-          <button aria-label="Mi cuenta" className="icon-button">
+          <Link aria-label="Mi cuenta" className="icon-button" to="/perfil">
             <UserRound size={21} />
-          </button>
+          </Link>
           <button
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
@@ -707,6 +717,109 @@ function ClothingPage() {
   );
 }
 
+function ProfilePage() {
+  const { logout, user } = useAuth();
+  const profile = user ?? {
+    id: 0,
+    name: "Valentina Ramos",
+    email: "valentina@ejemplo.com",
+    role: "CLIENT" as const,
+  };
+  const firstName = profile.name.split(" ")[0];
+  const initials = profile.name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("");
+
+  useRevealCards();
+
+  return (
+    <div className="site-page profile-page">
+      <Header />
+      <main className="profile-main section-shell">
+        <div className="profile-intro">
+          <div>
+            <div className="breadcrumbs">
+              <Link to="/">Inicio</Link>
+              <span>/</span>
+              <span>Mi cuenta</span>
+            </div>
+            <span className="section-kicker">Mi espacio</span>
+            <h1>Hola, {firstName}.</h1>
+            <p>Gestiona tu información, pedidos y favoritos desde un solo lugar.</p>
+          </div>
+          {!user && <span className="profile-demo-badge">Vista de demostración</span>}
+        </div>
+
+        <div className="profile-layout">
+          <aside className="profile-sidebar animated-card">
+            <div className="profile-avatar">{initials}</div>
+            <h2>{profile.name}</h2>
+            <p>{profile.email}</p>
+            <span className="profile-role">{profile.role === "ADMIN" ? "Administrador" : "Cliente Triopi"}</span>
+            <nav aria-label="Navegación de perfil" className="profile-nav">
+              <a className="profile-nav-item profile-nav-item--active" href="#mi-perfil"><UserRound size={18} /> Mi perfil</a>
+              <a className="profile-nav-item" href="#mis-pedidos"><PackageCheck size={18} /> Mis pedidos</a>
+              <a className="profile-nav-item" href="#favoritos"><Heart size={18} /> Favoritos</a>
+              <a className="profile-nav-item" href="#ajustes"><Settings size={18} /> Ajustes</a>
+            </nav>
+            {user && (
+              <button className="profile-logout" type="button" onClick={logout}>
+                <LogOut size={17} /> Cerrar sesión
+              </button>
+            )}
+          </aside>
+
+          <div className="profile-content">
+            <section className="profile-card animated-card" id="mi-perfil">
+              <div className="profile-card-heading">
+                <div>
+                  <span className="section-kicker">Datos personales</span>
+                  <h2>Tu perfil</h2>
+                </div>
+                <button type="button">Editar información</button>
+              </div>
+              <div className="profile-fields">
+                <label>Nombre completo<input readOnly value={profile.name} /></label>
+                <label>Correo electrónico<input readOnly value={profile.email} /></label>
+                <label>Teléfono<input placeholder="Agrega tu teléfono" readOnly /></label>
+                <label>Distrito<input placeholder="Agrega tu distrito" readOnly /></label>
+              </div>
+            </section>
+
+            <section className="profile-card animated-card" id="mis-pedidos">
+              <div className="profile-card-heading">
+                <div>
+                  <span className="section-kicker">Historial</span>
+                  <h2>Pedidos recientes</h2>
+                </div>
+                <button type="button">Ver todos</button>
+              </div>
+              <div className="profile-orders">
+                {profileOrders.map((order) => (
+                  <article className="profile-order" key={order.id}>
+                    <div className="profile-order-icon"><PackageCheck size={20} /></div>
+                    <div><strong>{order.id}</strong><span>{order.date}</span></div>
+                    <span className={`order-status ${order.status === "En camino" ? "order-status--shipping" : ""}`}>{order.status}</span>
+                    <strong>{order.total}</strong>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="profile-favorites animated-card" id="favoritos">
+              <Heart size={22} />
+              <div><span className="section-kicker">Tus favoritos</span><h2>Aún no guardaste productos.</h2><p>Explora las colecciones y guarda lo que más le guste.</p></div>
+              <Link to="/collares">Explorar tienda <ArrowRight size={16} /></Link>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Routes>
@@ -714,6 +827,7 @@ function App() {
       <Route element={<CollarsPage />} path="/collares" />
       <Route element={<ToysPage />} path="/juguetes" />
       <Route element={<ClothingPage />} path="/ropa" />
+      <Route element={<ProfilePage />} path="/perfil" />
     </Routes>
   );
 }

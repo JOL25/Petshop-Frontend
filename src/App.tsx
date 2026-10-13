@@ -3,10 +3,12 @@ import {
   ArrowRight,
   CreditCard,
   Heart,
+  LockKeyhole,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Menu,
+  Mail,
   Minus,
   PackageCheck,
   Plus,
@@ -18,7 +20,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, NavLink, Route, Routes } from "react-router-dom";
 import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
@@ -145,6 +147,7 @@ const profileOrders = [
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useAuth();
   const itemCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0),
   );
@@ -196,7 +199,7 @@ function Header() {
             <ShoppingBag size={21} />
             {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
           </Link>
-          <Link aria-label="Mi cuenta" className="icon-button" to="/perfil">
+          <Link aria-label={user ? "Mi cuenta" : "Iniciar sesión"} className="icon-button" to={user ? "/perfil" : "/acceso"}>
             <UserRound size={21} />
           </Link>
           <button
@@ -822,12 +825,104 @@ function CartPage() {
               <button className="cart-checkout" disabled={isCheckingOut} type="button" onClick={handleCheckout}>
                 <CreditCard size={18} /> {isCheckingOut ? "Preparando pago..." : "Continuar al pago"}
               </button>
-              {!user && <p className="cart-login-hint">El pago requiere una sesión activa. El backend protege los pedidos con tu cuenta.</p>}
+              {!user && <p className="cart-login-hint">El pago requiere una sesión activa. <Link to="/acceso">Inicia sesión o crea tu cuenta.</Link></p>}
               <div className="cart-security"><ShieldCheck size={18} /><span>El total y el stock se validan de forma segura en el backend.</span></div>
               <Link className="cart-continue" to="/"><ArrowLeft size={16} /> Seguir comprando</Link>
             </aside>
           </div>
         )}
+      </main>
+    </div>
+  );
+}
+
+function AuthPage() {
+  const { login, user } = useAuth();
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const submitAuth = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+
+    if (mode === "register" && name.trim().length < 2) {
+      setError("Ingresa tu nombre completo.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const endpoint = mode === "login" ? "/auth/login" : "/auth/register";
+      const payload = mode === "login" ? { email, password } : { name: name.trim(), email, password };
+      const response = await apiClient.post<{
+        token: string;
+        userId: number;
+        name: string;
+        email: string;
+        role: "ADMIN" | "CLIENT";
+      }>(endpoint, payload);
+
+      login(response.data.token, {
+        id: response.data.userId,
+        name: response.data.name,
+        email: response.data.email,
+        role: response.data.role === "ADMIN" ? "ADMIN" : "CLIENT",
+      });
+    } catch {
+      setError(
+        mode === "login"
+          ? "No pudimos iniciar sesión. Revisa tu correo y contraseña."
+          : "No pudimos crear tu cuenta. Es posible que el correo ya esté registrado.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (user) {
+    return (
+      <div className="site-page auth-page"><Header /><main className="auth-main"><section className="auth-card auth-card--signed"><UserRound size={30} /><span className="section-kicker">Sesión activa</span><h1>Ya estás dentro, {user.name.split(" ")[0]}.</h1><p>Tu cuenta está lista para continuar comprando.</p><Link to="/perfil">Ir a mi perfil <ArrowRight size={17} /></Link></section></main></div>
+    );
+  }
+
+  return (
+    <div className="site-page auth-page">
+      <Header />
+      <main className="auth-main">
+        <section className="auth-showcase" aria-hidden="true">
+          <img alt="" src={collarImage} />
+          <div><span>Triopi Petshop</span><strong>Todo para sus mejores días.</strong></div>
+        </section>
+        <section className="auth-panel">
+          <div className="auth-panel-inner">
+            <Link className="auth-back" to="/"><ArrowLeft size={16} /> Volver a la tienda</Link>
+            <span className="section-kicker">Mi cuenta</span>
+            <h1>{mode === "login" ? "Qué bueno verte." : "Crea tu cuenta."}</h1>
+            <p>{mode === "login" ? "Inicia sesión para continuar con tu compra y ver tus pedidos." : "Regístrate para guardar tus pedidos y pagar de forma segura."}</p>
+            <div className="auth-tabs" role="tablist">
+              <button className={mode === "login" ? "auth-tab auth-tab--active" : "auth-tab"} type="button" onClick={() => { setMode("login"); setError(""); }}>Iniciar sesión</button>
+              <button className={mode === "register" ? "auth-tab auth-tab--active" : "auth-tab"} type="button" onClick={() => { setMode("register"); setError(""); }}>Crear cuenta</button>
+            </div>
+            <form className="auth-form" onSubmit={submitAuth}>
+              {mode === "register" && <label>Nombre completo<input autoComplete="name" onChange={(event) => setName(event.target.value)} placeholder="Tu nombre" required value={name} /></label>}
+              <label>Correo electrónico<div className="auth-input"><Mail size={17} /><input autoComplete="email" onChange={(event) => setEmail(event.target.value)} placeholder="tu@correo.com" required type="email" value={email} /></div></label>
+              <label>Contraseña<div className="auth-input"><LockKeyhole size={17} /><input autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} onChange={(event) => setPassword(event.target.value)} placeholder="Mínimo 8 caracteres" required type="password" value={password} /></div></label>
+              {error && <p className="auth-error">{error}</p>}
+              <button className="auth-submit" disabled={isSubmitting} type="submit">{isSubmitting ? "Procesando..." : mode === "login" ? "Iniciar sesión" : "Crear mi cuenta"} <ArrowRight size={17} /></button>
+            </form>
+            <p className="auth-note">Al continuar aceptas los términos de servicio y la política de privacidad de Triopi Petshop.</p>
+          </div>
+        </section>
       </main>
     </div>
   );
@@ -945,6 +1040,7 @@ function App() {
       <Route element={<ClothingPage />} path="/ropa" />
       <Route element={<ProfilePage />} path="/perfil" />
       <Route element={<CartPage />} path="/carrito" />
+      <Route element={<AuthPage />} path="/acceso" />
     </Routes>
   );
 }

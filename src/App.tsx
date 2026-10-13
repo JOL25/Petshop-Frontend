@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, NavLink, Route, Routes } from "react-router-dom";
 import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
 import toysImage from "./assets/home/hero-toys.png";
@@ -122,12 +122,19 @@ function Header() {
         </Link>
 
         <nav className={`main-nav ${menuOpen ? "main-nav--open" : ""}`}>
-          <Link className="nav-link nav-link--active" to="/">
+          <NavLink
+            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            end
+            to="/"
+          >
             Inicio
-          </Link>
-          <Link className="nav-link" to="/collares">
+          </NavLink>
+          <NavLink
+            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            to="/collares"
+          >
             Collares
-          </Link>
+          </NavLink>
           <a className="nav-link" href="#categorias">
             Juguetes
           </a>

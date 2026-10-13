@@ -99,6 +99,15 @@ const products = [
   },
 ];
 
+const collarProducts = [
+  { name: "Collar cuero Terra", price: 45, rating: 4.9, badge: "Más vendido", position: "72% center" },
+  { name: "Collar Urban Moss", price: 42, rating: 4.8, badge: "Nuevo", position: "62% center" },
+  { name: "Collar paseo Sand", price: 39, rating: 4.7, position: "78% center" },
+  { name: "Collar clásico Cocoa", price: 48, rating: 5, position: "69% center" },
+  { name: "Collar diario Clay", price: 35, rating: 4.8, position: "75% center" },
+  { name: "Collar aventura Oak", price: 52, rating: 4.9, badge: "Edición limitada", position: "58% center" },
+];
+
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const itemCount = useCartStore((state) =>
@@ -116,9 +125,9 @@ function Header() {
           <Link className="nav-link nav-link--active" to="/">
             Inicio
           </Link>
-          <a className="nav-link" href="#categorias">
+          <Link className="nav-link" to="/collares">
             Collares
-          </a>
+          </Link>
           <a className="nav-link" href="#categorias">
             Juguetes
           </a>
@@ -348,7 +357,7 @@ function Footer() {
   );
 }
 
-function HomePage() {
+function useRevealCards() {
   useEffect(() => {
     const cards = document.querySelectorAll<HTMLElement>(".animated-card");
 
@@ -378,6 +387,10 @@ function HomePage() {
     cards.forEach((card) => observer.observe(card));
     return () => observer.disconnect();
   }, []);
+}
+
+function HomePage() {
+  useRevealCards();
 
   return (
     <div className="site-page">
@@ -392,10 +405,99 @@ function HomePage() {
   );
 }
 
+function CollarsPage() {
+  const addItem = useCartStore((state) => state.addItem);
+  useRevealCards();
+
+  return (
+    <div className="site-page collars-page">
+      <Header />
+      <main>
+        <section className="collars-hero">
+          <div className="collars-hero-copy">
+            <div className="breadcrumbs">
+              <Link to="/">Inicio</Link>
+              <span>/</span>
+              <span>Collares</span>
+            </div>
+            <span className="section-kicker">Colección esencial</span>
+            <h1>Collares para cada aventura.</h1>
+            <p>
+              Piezas cómodas, resistentes y con carácter para acompañar todos sus paseos.
+            </p>
+            <a className="primary-button" href="#catalogo-collares">
+              Ver colección <ArrowRight size={18} />
+            </a>
+          </div>
+          <div className="collars-hero-visual" aria-hidden="true">
+            <div className="collars-orbit collars-orbit--one" />
+            <div className="collars-orbit collars-orbit--two" />
+            <img alt="" src={collarImage} />
+            <span className="collars-hero-label">Hecho para pasear</span>
+          </div>
+        </section>
+
+        <section className="collars-catalog section-shell" id="catalogo-collares">
+          <div className="collars-catalog-heading">
+            <div>
+              <span className="section-kicker">Catálogo</span>
+              <h2>Todos los collares</h2>
+              <p>6 diseños disponibles para cada tamaño y personalidad.</p>
+            </div>
+            <span className="catalog-count">06 productos</span>
+          </div>
+
+          <div className="collar-filters" aria-label="Filtros de collares">
+            <button className="filter-chip filter-chip--active" type="button">Todos</button>
+            <button className="filter-chip" type="button">Cuero</button>
+            <button className="filter-chip" type="button">Paseo</button>
+            <button className="filter-chip" type="button">Ajustables</button>
+          </div>
+
+          <div className="collar-grid">
+            {collarProducts.map((product, index) => (
+              <article className="collar-product-card animated-card" key={product.name}>
+                <div className="collar-product-image">
+                  {product.badge && <span className="product-badge">{product.badge}</span>}
+                  <img alt={product.name} src={collarImage} style={{ objectPosition: product.position }} />
+                  <span className="collar-image-index">0{index + 1}</span>
+                </div>
+                <div className="collar-product-info">
+                  <span>Collares</span>
+                  <h3>{product.name}</h3>
+                  <div>
+                    <strong>S/ {product.price.toFixed(2)}</strong>
+                    <span>{product.rating.toFixed(1)} ★</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addItem({
+                        productId: 101 + index,
+                        name: product.name,
+                        price: product.price,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    Agregar al carrito
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   return (
     <Routes>
       <Route element={<HomePage />} path="/" />
+      <Route element={<CollarsPage />} path="/collares" />
     </Routes>
   );
 }

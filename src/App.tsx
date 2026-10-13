@@ -117,6 +117,15 @@ const toyProducts = [
   { name: "Juguete Wild Pebble", price: 27, rating: 4.9, badge: "Edición limitada", position: "71% 74%" },
 ];
 
+const clothingProducts = [
+  { name: "Suéter Active Cream", price: 38, rating: 4.8, badge: "Más vendido", position: "72% center" },
+  { name: "Abrigo Cozy Walk", price: 52, rating: 4.7, badge: "Nuevo", position: "78% center" },
+  { name: "Chaleco Soft Terra", price: 44, rating: 4.9, position: "63% center" },
+  { name: "Polo Daily Sand", price: 32, rating: 4.8, position: "68% center" },
+  { name: "Capa Rain Moss", price: 49, rating: 4.7, position: "76% center" },
+  { name: "Hoodie Weekend Clay", price: 56, rating: 5, badge: "Edición limitada", position: "58% center" },
+];
+
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const itemCount = useCartStore((state) =>
@@ -150,9 +159,12 @@ function Header() {
           >
             Juguetes
           </NavLink>
-          <a className="nav-link" href="#categorias">
+          <NavLink
+            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            to="/ropa"
+          >
             Ropa
-          </a>
+          </NavLink>
           <a className="nav-link" href="#footer">
             Nosotros
           </a>
@@ -607,12 +619,101 @@ function ToysPage() {
   );
 }
 
+function ClothingPage() {
+  const addItem = useCartStore((state) => state.addItem);
+  useRevealCards();
+
+  return (
+    <div className="site-page clothing-page">
+      <Header />
+      <main>
+        <section className="clothing-hero">
+          <div className="clothing-hero-copy">
+            <div className="breadcrumbs">
+              <Link to="/">Inicio</Link>
+              <span>/</span>
+              <span>Ropa</span>
+            </div>
+            <span className="section-kicker">Comodidad diaria</span>
+            <h1>Ropa que acompaña cada paso.</h1>
+            <p>
+              Prendas suaves y funcionales, hechas para protegerlos y darles libertad de movimiento.
+            </p>
+            <a className="clothing-primary-button" href="#catalogo-ropa">
+              Ver colección <ArrowRight size={18} />
+            </a>
+          </div>
+          <div className="clothing-hero-visual" aria-hidden="true">
+            <span className="clothing-line clothing-line--one" />
+            <span className="clothing-line clothing-line--two" />
+            <img alt="" src={clothingImage} />
+            <span className="clothing-hero-label">Suave por dentro y por fuera</span>
+          </div>
+        </section>
+
+        <section className="clothing-catalog section-shell" id="catalogo-ropa">
+          <div className="clothing-catalog-heading">
+            <div>
+              <span className="section-kicker">Catálogo</span>
+              <h2>Ropa para su ritmo</h2>
+              <p>6 prendas para pasear, descansar y disfrutar cada temporada.</p>
+            </div>
+            <span className="catalog-count">06 productos</span>
+          </div>
+
+          <div className="clothing-filters" aria-label="Filtros de ropa">
+            <button className="clothing-filter-chip clothing-filter-chip--active" type="button">Todos</button>
+            <button className="clothing-filter-chip" type="button">Abrigos</button>
+            <button className="clothing-filter-chip" type="button">Suéteres</button>
+            <button className="clothing-filter-chip" type="button">Paseo</button>
+          </div>
+
+          <div className="clothing-grid">
+            {clothingProducts.map((product, index) => (
+              <article className="clothing-product-card animated-card" key={product.name}>
+                <div className="clothing-product-image">
+                  {product.badge && <span className="product-badge">{product.badge}</span>}
+                  <img alt={product.name} src={clothingImage} style={{ objectPosition: product.position }} />
+                  <span className="clothing-image-index">0{index + 1}</span>
+                </div>
+                <div className="clothing-product-info">
+                  <span>Ropa</span>
+                  <h3>{product.name}</h3>
+                  <div>
+                    <strong>S/ {product.price.toFixed(2)}</strong>
+                    <span>{product.rating.toFixed(1)} ★</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addItem({
+                        productId: 301 + index,
+                        name: product.name,
+                        price: product.price,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    Agregar al carrito
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   return (
     <Routes>
       <Route element={<HomePage />} path="/" />
       <Route element={<CollarsPage />} path="/collares" />
       <Route element={<ToysPage />} path="/juguetes" />
+      <Route element={<ClothingPage />} path="/ropa" />
     </Routes>
   );
 }

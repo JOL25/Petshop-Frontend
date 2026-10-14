@@ -224,6 +224,11 @@ function Header() {
           <Link aria-label={user ? "Mi cuenta" : "Iniciar sesión"} className="icon-button" to={user ? "/perfil" : "/acceso"}>
             <UserRound size={21} />
           </Link>
+          {user?.role === "ADMIN" && (
+            <Link aria-label="Panel administrativo" className="icon-button" to="/administracion">
+              <Settings size={20} />
+            </Link>
+          )}
           <button
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
@@ -1153,6 +1158,100 @@ export function LegacyProfilePage() {
   );
 }
 
+type AdminProduct = ApiProduct & {
+  active: boolean;
+};
+
+type AdminCategory = {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+};
+
+function AdminPage() {
+  const { user } = useAuth();
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [categories, setCategories] = useState<AdminCategory[]>([]);
+  const [orders, setOrders] = useState<ApiOrder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (user?.role !== "ADMIN") {
+      setIsLoading(false);
+      return;
+    }
+
+    Promise.all([
+      apiClient.get<AdminProduct[]>("/admin/products"),
+      apiClient.get<AdminCategory[]>("/admin/categories"),
+      apiClient.get<ApiOrder[]>("/admin/orders"),
+    ])
+      .then(([productsResponse, categoriesResponse, ordersResponse]) => {
+        setProducts(productsResponse.data);
+        setCategories(categoriesResponse.data);
+        setOrders(ordersResponse.data);
+      })
+      .catch(() => setError("No pudimos cargar la informacion administrativa."))
+      .finally(() => setIsLoading(false));
+  }, [user]);
+
+  if (!user || user.role !== "ADMIN") {
+    return (
+      <div className="site-page admin-page">
+        <Header />
+        <main className="admin-access section-shell">
+          <ShieldCheck size={36} />
+          <span className="section-kicker">Area protegida</span>
+          <h1>Panel administrativo</h1>
+          <p>Esta seccion solo esta disponible para cuentas con rol administrador.</p>
+          <Link className="primary-button" to={user ? "/perfil" : "/acceso"}>{user ? "Volver a mi perfil" : "Iniciar sesion"} <ArrowRight size={17} /></Link>
+        </main>
+      </div>
+    );
+  }
+
+  const paidOrders = orders.filter((order) => order.status === "PAID");
+  const pendingOrders = orders.filter((order) => order.status === "PENDING");
+  const revenue = paidOrders.reduce((total, order) => total + Number(order.total), 0);
+  const lowStock = products.filter((product) => product.stock <= 5 && product.active);
+
+  return (
+    <div className="site-page admin-page">
+      <Header />
+      <main className="admin-main section-shell">
+        <div className="admin-hero">
+          <div><span className="section-kicker">Centro de control</span><h1>Hola, {user.name.split(" ")[0]}.</h1><p>Supervisa la operacion de Triopi Petshop desde un solo lugar.</p></div>
+          <span className="admin-role"><ShieldCheck size={16} /> Administrador</span>
+        </div>
+
+        {error && <p className="auth-error">{error}</p>}
+        {isLoading ? <section className="admin-loading">Cargando panel administrativo...</section> : <>
+          <section className="admin-metrics" aria-label="Resumen administrativo">
+            <article><span>Ventas confirmadas</span><strong>S/ {revenue.toFixed(2)}</strong><small>{paidOrders.length} pedidos pagados</small></article>
+            <article><span>Pedidos pendientes</span><strong>{pendingOrders.length}</strong><small>Requieren seguimiento</small></article>
+            <article><span>Productos activos</span><strong>{products.filter((product) => product.active).length}</strong><small>{lowStock.length} con stock bajo</small></article>
+            <article><span>Categorias</span><strong>{categories.filter((category) => category.active).length}</strong><small>{categories.length} en total</small></article>
+          </section>
+
+          <section className="admin-grid">
+            <article className="admin-card admin-card--wide">
+              <div className="admin-card-heading"><div><span className="section-kicker">Inventario</span><h2>Productos</h2></div><span><ShoppingBag size={18} /> {products.length}</span></div>
+              <div className="admin-table" role="table"><div className="admin-table-row admin-table-row--head" role="row"><span>Producto</span><span>Categoria</span><span>Stock</span><span>Estado</span></div>{products.slice(0, 6).map((product) => <div className="admin-table-row" key={product.id} role="row"><strong>{product.name}</strong><span>{product.categoryName}</span><span className={product.stock <= 5 ? "admin-stock-low" : ""}>{product.stock} unidades</span><span className={product.active ? "admin-status admin-status--active" : "admin-status"}>{product.active ? "Activo" : "Inactivo"}</span></div>)}</div>
+              <p className="admin-card-note">La gestion para crear y editar productos se conectara a este resumen.</p>
+            </article>
+
+            <article className="admin-card"><div className="admin-card-heading"><div><span className="section-kicker">Catalogo</span><h2>Categorias</h2></div><Settings size={19} /></div><div className="admin-category-list">{categories.map((category) => <div key={category.id}><span>{category.name}</span><small className={category.active ? "admin-status admin-status--active" : "admin-status"}>{category.active ? "Activa" : "Inactiva"}</small></div>)}</div></article>
+
+            <article className="admin-card admin-card--wide"><div className="admin-card-heading"><div><span className="section-kicker">Operacion</span><h2>Pedidos recientes</h2></div><PackageCheck size={20} /></div><div className="admin-orders">{orders.length === 0 ? <p>Aun no hay pedidos registrados.</p> : orders.slice(0, 5).map((order) => <div key={order.id}><div><strong>Pedido #{order.id}</strong><span>{new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(new Date(order.createdAt))}</span></div><span className={`admin-status ${order.status === "PAID" ? "admin-status--active" : order.status === "PENDING" ? "admin-status--pending" : ""}`}>{order.status === "PAID" ? "Pagado" : order.status === "PENDING" ? "Pendiente" : "Cancelado"}</span><strong>S/ {Number(order.total).toFixed(2)}</strong></div>)}</div></article>
+          </section>
+        </>}
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Routes>
@@ -1163,6 +1262,7 @@ function App() {
       <Route element={<ProfilePage />} path="/perfil" />
       <Route element={<CartPage />} path="/carrito" />
       <Route element={<AuthPage />} path="/acceso" />
+      <Route element={<AdminPage />} path="/administracion" />
     </Routes>
   );
 }

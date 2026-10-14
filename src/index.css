@@ -3104,6 +3104,25 @@ footer {
   padding-bottom: 80px;
 }
 
+.admin-back {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 23px;
+  border: 1px solid #d9cec3;
+  border-radius: 50%;
+  place-items: center;
+  color: var(--ink);
+  background: #fffdf9;
+  transition: 180ms ease;
+}
+
+.admin-back:hover {
+  border-color: var(--caramel-dark);
+  color: white;
+  background: var(--caramel-dark);
+}
+
 .admin-hero {
   display: flex;
   align-items: flex-end;

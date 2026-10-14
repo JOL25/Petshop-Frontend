@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, NavLink, Route, Routes } from "react-router-dom";
+import { Link, Navigate, NavLink, Route, Routes } from "react-router-dom";
 import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
 import toysImage from "./assets/home/hero-toys.png";
@@ -221,7 +221,7 @@ function Header() {
             <ShoppingBag size={21} />
             {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
           </Link>
-          <Link aria-label={user ? "Mi cuenta" : "Iniciar sesión"} className="icon-button" to={user ? "/perfil" : "/acceso"}>
+          <Link aria-label={user ? "Mi cuenta" : "Iniciar sesión"} className="icon-button" to={user?.role === "ADMIN" ? "/administracion" : user ? "/perfil" : "/acceso"}>
             <UserRound size={21} />
           </Link>
           {user?.role === "ADMIN" && (
@@ -1032,6 +1032,10 @@ function ProfilePage() {
     return <div className="site-page profile-page"><Header /><main className="auth-main"><section className="auth-card auth-card--signed"><UserRound size={30} /><span className="section-kicker">Mi cuenta</span><h1>Inicia sesion para ver tu perfil.</h1><p>Tu informacion y tus pedidos estan protegidos en tu cuenta.</p><Link to="/acceso">Ir a iniciar sesion <ArrowRight size={17} /></Link></section></main></div>;
   }
 
+  if (user.role === "ADMIN") {
+    return <Navigate replace to="/administracion" />;
+  }
+
   const activeProfile = profile ?? user;
   const firstName = activeProfile.name.split(" ")[0];
   const initials = activeProfile.name.split(" ").map((part) => part[0]).slice(0, 2).join("");
@@ -1199,8 +1203,8 @@ function AdminPage() {
   if (!user || user.role !== "ADMIN") {
     return (
       <div className="site-page admin-page">
-        <Header />
         <main className="admin-access section-shell">
+          <Link aria-label="Volver al inicio" className="admin-back" to="/"><ArrowLeft size={19} /></Link>
           <ShieldCheck size={36} />
           <span className="section-kicker">Area protegida</span>
           <h1>Panel administrativo</h1>
@@ -1218,8 +1222,8 @@ function AdminPage() {
 
   return (
     <div className="site-page admin-page">
-      <Header />
       <main className="admin-main section-shell">
+        <Link aria-label="Volver al inicio" className="admin-back" to="/"><ArrowLeft size={19} /></Link>
         <div className="admin-hero">
           <div><span className="section-kicker">Centro de control</span><h1>Hola, {user.name.split(" ")[0]}.</h1><p>Supervisa la operacion de Triopi Petshop desde un solo lugar.</p></div>
           <span className="admin-role"><ShieldCheck size={16} /> Administrador</span>

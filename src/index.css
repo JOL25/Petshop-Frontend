@@ -1945,7 +1945,8 @@ a {
 .auth-main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
-  min-height: calc(100vh - 77px);
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .auth-showcase {

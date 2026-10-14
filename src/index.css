@@ -3159,6 +3159,33 @@ footer {
   text-transform: uppercase;
 }
 
+.admin-hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-logout {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 11px;
+  border: 1px solid rgb(255 255 255 / 35%);
+  gap: 7px;
+  color: #fffaf3;
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  transition: 180ms ease;
+}
+
+.admin-logout:hover {
+  color: #4a2b18;
+  background: #f4d3b6;
+}
+
 .admin-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3370,6 +3397,10 @@ footer {
     align-items: flex-start;
     flex-direction: column;
     padding: 25px;
+  }
+
+  .admin-hero-actions {
+    justify-content: flex-start;
   }
 
   .admin-metrics {

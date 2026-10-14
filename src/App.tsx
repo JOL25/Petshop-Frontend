@@ -20,8 +20,8 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
-import { Link, Navigate, NavLink, Route, Routes } from "react-router-dom";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { Link, Navigate, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
 import toysImage from "./assets/home/hero-toys.png";
@@ -947,6 +947,10 @@ function AuthPage() {
     }
   };
 
+  if (user?.role === "ADMIN") {
+    return <Navigate replace to="/administracion" />;
+  }
+
   if (user) {
     return (
       <div className="site-page auth-page"><main className="auth-main"><section className="auth-card auth-card--signed"><Link aria-label="Ir a mi perfil" className="auth-back auth-back--icon" to="/perfil"><ArrowLeft size={19} /></Link><UserRound size={30} /><span className="section-kicker">Sesión activa</span><h1>Ya estás dentro, {user.name.split(" ")[0]}.</h1><p>Tu cuenta está lista para continuar comprando.</p><Link to="/perfil">Ir a mi perfil <ArrowRight size={17} /></Link></section></main></div>
@@ -1173,7 +1177,8 @@ type AdminCategory = {
 };
 
 function AdminPage() {
-  const { user } = useAuth();
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [orders, setOrders] = useState<ApiOrder[]>([]);
@@ -1219,6 +1224,10 @@ function AdminPage() {
   const pendingOrders = orders.filter((order) => order.status === "PENDING");
   const revenue = paidOrders.reduce((total, order) => total + Number(order.total), 0);
   const lowStock = products.filter((product) => product.stock <= 5 && product.active);
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
 
   return (
     <div className="site-page admin-page">
@@ -1226,7 +1235,7 @@ function AdminPage() {
         <Link aria-label="Volver al inicio" className="admin-back" to="/"><ArrowLeft size={19} /></Link>
         <div className="admin-hero">
           <div><span className="section-kicker">Centro de control</span><h1>Hola, {user.name.split(" ")[0]}.</h1><p>Supervisa la operacion de Triopi Petshop desde un solo lugar.</p></div>
-          <span className="admin-role"><ShieldCheck size={16} /> Administrador</span>
+          <div className="admin-hero-actions"><span className="admin-role"><ShieldCheck size={16} /> Administrador</span><button className="admin-logout" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesion</button></div>
         </div>
 
         {error && <p className="auth-error">{error}</p>}
@@ -1255,16 +1264,26 @@ function AdminPage() {
   );
 }
 
+function CustomerRoute({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+
+  if (user?.role === "ADMIN") {
+    return <Navigate replace to="/administracion" />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <Routes>
-      <Route element={<HomePage />} path="/" />
-      <Route element={<CollarsPage />} path="/collares" />
-      <Route element={<ToysPage />} path="/juguetes" />
-      <Route element={<ClothingPage />} path="/ropa" />
-      <Route element={<ProfilePage />} path="/perfil" />
-      <Route element={<CartPage />} path="/carrito" />
-      <Route element={<AuthPage />} path="/acceso" />
+      <Route element={<CustomerRoute><HomePage /></CustomerRoute>} path="/" />
+      <Route element={<CustomerRoute><CollarsPage /></CustomerRoute>} path="/collares" />
+      <Route element={<CustomerRoute><ToysPage /></CustomerRoute>} path="/juguetes" />
+      <Route element={<CustomerRoute><ClothingPage /></CustomerRoute>} path="/ropa" />
+      <Route element={<CustomerRoute><ProfilePage /></CustomerRoute>} path="/perfil" />
+      <Route element={<CustomerRoute><CartPage /></CustomerRoute>} path="/carrito" />
+      <Route element={<CustomerRoute><AuthPage /></CustomerRoute>} path="/acceso" />
       <Route element={<AdminPage />} path="/administracion" />
     </Routes>
   );

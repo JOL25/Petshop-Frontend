@@ -949,13 +949,12 @@ function AuthPage() {
 
   if (user) {
     return (
-      <div className="site-page auth-page"><Header /><main className="auth-main"><section className="auth-card auth-card--signed"><UserRound size={30} /><span className="section-kicker">Sesión activa</span><h1>Ya estás dentro, {user.name.split(" ")[0]}.</h1><p>Tu cuenta está lista para continuar comprando.</p><Link to="/perfil">Ir a mi perfil <ArrowRight size={17} /></Link></section></main></div>
+      <div className="site-page auth-page"><main className="auth-main"><section className="auth-card auth-card--signed"><Link aria-label="Ir a mi perfil" className="auth-back auth-back--icon" to="/perfil"><ArrowLeft size={19} /></Link><UserRound size={30} /><span className="section-kicker">Sesión activa</span><h1>Ya estás dentro, {user.name.split(" ")[0]}.</h1><p>Tu cuenta está lista para continuar comprando.</p><Link to="/perfil">Ir a mi perfil <ArrowRight size={17} /></Link></section></main></div>
     );
   }
 
   return (
     <div className="site-page auth-page">
-      <Header />
       <main className="auth-main">
         <section className="auth-showcase" aria-hidden="true">
           <img alt="" src={collarImage} />
@@ -963,7 +962,7 @@ function AuthPage() {
         </section>
         <section className="auth-panel">
           <div className="auth-panel-inner">
-            <Link className="auth-back" to="/"><ArrowLeft size={16} /> Volver a la tienda</Link>
+            <Link aria-label="Volver al inicio" className="auth-back auth-back--icon" to="/"><ArrowLeft size={19} /></Link>
             <span className="section-kicker">Mi cuenta</span>
             <h1>{mode === "login" ? "Qué bueno verte." : "Crea tu cuenta."}</h1>
             <p>{mode === "login" ? "Inicia sesión para continuar con tu compra y ver tus pedidos." : "Regístrate para guardar tus pedidos y pagar de forma segura."}</p>

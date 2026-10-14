@@ -28,6 +28,7 @@ import {
   Route,
   Routes,
   useNavigate,
+  useSearchParams,
 } from "react-router-dom";
 import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
@@ -149,102 +150,6 @@ const products = [
     rating: 4.7,
     image: clothingImage,
     position: "78% center",
-  },
-];
-
-const collarProducts = [
-  {
-    name: "Collar cuero Terra",
-    price: 45,
-    rating: 4.9,
-    badge: "Más vendido",
-    position: "72% center",
-  },
-  {
-    name: "Collar Urban Moss",
-    price: 42,
-    rating: 4.8,
-    badge: "Nuevo",
-    position: "62% center",
-  },
-  { name: "Collar paseo Sand", price: 39, rating: 4.7, position: "78% center" },
-  {
-    name: "Collar clásico Cocoa",
-    price: 48,
-    rating: 5,
-    position: "69% center",
-  },
-  {
-    name: "Collar diario Clay",
-    price: 35,
-    rating: 4.8,
-    position: "75% center",
-  },
-  {
-    name: "Collar aventura Oak",
-    price: 52,
-    rating: 4.9,
-    badge: "Edición limitada",
-    position: "58% center",
-  },
-];
-
-const toyProducts = [
-  {
-    name: "Set de juego Natural",
-    price: 29,
-    rating: 5,
-    badge: "Popular",
-    position: "68% 78%",
-  },
-  {
-    name: "Pelota Bounce Moss",
-    price: 18,
-    rating: 4.8,
-    badge: "Nuevo",
-    position: "52% 62%",
-  },
-  { name: "Cuerda Twist Terra", price: 24, rating: 4.7, position: "74% 72%" },
-  { name: "Mordedor Loop Clay", price: 22, rating: 4.9, position: "64% 80%" },
-  { name: "Dúo de exploración", price: 34, rating: 4.8, position: "58% 66%" },
-  {
-    name: "Juguete Wild Pebble",
-    price: 27,
-    rating: 4.9,
-    badge: "Edición limitada",
-    position: "71% 74%",
-  },
-];
-
-const clothingProducts = [
-  {
-    name: "Suéter Active Cream",
-    price: 38,
-    rating: 4.8,
-    badge: "Más vendido",
-    position: "72% center",
-  },
-  {
-    name: "Abrigo Cozy Walk",
-    price: 52,
-    rating: 4.7,
-    badge: "Nuevo",
-    position: "78% center",
-  },
-  {
-    name: "Chaleco Soft Terra",
-    price: 44,
-    rating: 4.9,
-    position: "63% center",
-  },
-  { name: "Polo Daily Sand", price: 32, rating: 4.8, position: "68% center" },
-  { name: "Capa Rain Moss", price: 49, rating: 4.7, position: "76% center" },
-  {
-    name: "Hoodie Weekend Clay",
-    price: 56,
-    rating: 5,
-    badge: "Edición limitada",
-    position: "58% center",
   },
 ];
 
@@ -516,7 +421,7 @@ function BestSellersSection() {
                 <img
                   alt={product.name}
                   className="product-image"
-                  src={products[index % products.length].image}
+                  src={product.imageUrl ?? products[index % products.length].image}
                   style={{
                     objectPosition: products[index % products.length].position,
                   }}
@@ -619,6 +524,27 @@ function useRevealCards() {
   }, []);
 }
 
+function useCatalogByCategory(categoryName: string) {
+  const [catalog, setCatalog] = useState<ApiProduct[]>([]);
+
+  useEffect(() => {
+    apiClient
+      .get<ApiProduct[]>("/products")
+      .then((response) =>
+        setCatalog(
+          response.data.filter(
+            (product) =>
+              product.categoryName.toLocaleLowerCase() ===
+              categoryName.toLocaleLowerCase(),
+          ),
+        ),
+      )
+      .catch(() => setCatalog([]));
+  }, [categoryName]);
+
+  return catalog;
+}
+
 function HomePage() {
   useRevealCards();
 
@@ -637,6 +563,7 @@ function HomePage() {
 
 function CollarsPage() {
   const addItem = useCartStore((state) => state.addItem);
+  const catalog = useCatalogByCategory("Collares");
   useRevealCards();
 
   return (
@@ -676,9 +603,11 @@ function CollarsPage() {
             <div>
               <span className="section-kicker">Catálogo</span>
               <h2>Todos los collares</h2>
-              <p>6 diseños disponibles para cada tamaño y personalidad.</p>
+              <p>Diseños disponibles para cada tamaño y personalidad.</p>
             </div>
-            <span className="catalog-count">06 productos</span>
+            <span className="catalog-count">
+              {String(catalog.length).padStart(2, "0")} productos
+            </span>
           </div>
 
           <div className="collar-filters" aria-label="Filtros de collares">
@@ -697,19 +626,15 @@ function CollarsPage() {
           </div>
 
           <div className="collar-grid">
-            {collarProducts.map((product, index) => (
+            {catalog.map((product, index) => (
               <article
                 className="collar-product-card animated-card"
                 key={product.name}
               >
                 <div className="collar-product-image">
-                  {product.badge && (
-                    <span className="product-badge">{product.badge}</span>
-                  )}
                   <img
                     alt={product.name}
-                    src={collarImage}
-                    style={{ objectPosition: product.position }}
+                    src={product.imageUrl ?? collarImage}
                   />
                   <span className="collar-image-index">0{index + 1}</span>
                 </div>
@@ -718,20 +643,22 @@ function CollarsPage() {
                   <h3>{product.name}</h3>
                   <div>
                     <strong>S/ {product.price.toFixed(2)}</strong>
-                    <span>{product.rating.toFixed(1)} ★</span>
+                    <span>{product.stock} disponibles</span>
                   </div>
                   <button
+                    disabled={product.stock < 1}
                     type="button"
                     onClick={() =>
                       addItem({
-                        productId: 101 + index,
+                        productId: product.id,
                         name: product.name,
                         price: product.price,
                         quantity: 1,
+                        stock: product.stock,
                       })
                     }
                   >
-                    Agregar al carrito
+                    {product.stock > 0 ? "Agregar al carrito" : "Sin stock"}
                   </button>
                 </div>
               </article>
@@ -746,6 +673,7 @@ function CollarsPage() {
 
 function ToysPage() {
   const addItem = useCartStore((state) => state.addItem);
+  const catalog = useCatalogByCategory("Juguetes");
   useRevealCards();
 
   return (
@@ -783,9 +711,11 @@ function ToysPage() {
             <div>
               <span className="section-kicker">Catálogo</span>
               <h2>Juguetes para explorar</h2>
-              <p>6 favoritos para morder, perseguir y descubrir.</p>
+              <p>Favoritos para morder, perseguir y descubrir.</p>
             </div>
-            <span className="catalog-count">06 productos</span>
+            <span className="catalog-count">
+              {String(catalog.length).padStart(2, "0")} productos
+            </span>
           </div>
 
           <div className="toy-filters" aria-label="Filtros de juguetes">
@@ -807,19 +737,15 @@ function ToysPage() {
           </div>
 
           <div className="toy-grid">
-            {toyProducts.map((product, index) => (
+            {catalog.map((product, index) => (
               <article
                 className="toy-product-card animated-card"
                 key={product.name}
               >
                 <div className="toy-product-image">
-                  {product.badge && (
-                    <span className="product-badge">{product.badge}</span>
-                  )}
                   <img
                     alt={product.name}
-                    src={toysImage}
-                    style={{ objectPosition: product.position }}
+                    src={product.imageUrl ?? toysImage}
                   />
                   <span className="toy-image-index">0{index + 1}</span>
                 </div>
@@ -828,20 +754,22 @@ function ToysPage() {
                   <h3>{product.name}</h3>
                   <div>
                     <strong>S/ {product.price.toFixed(2)}</strong>
-                    <span>{product.rating.toFixed(1)} ★</span>
+                    <span>{product.stock} disponibles</span>
                   </div>
                   <button
+                    disabled={product.stock < 1}
                     type="button"
                     onClick={() =>
                       addItem({
-                        productId: 201 + index,
+                        productId: product.id,
                         name: product.name,
                         price: product.price,
                         quantity: 1,
+                        stock: product.stock,
                       })
                     }
                   >
-                    Agregar al carrito
+                    {product.stock > 0 ? "Agregar al carrito" : "Sin stock"}
                   </button>
                 </div>
               </article>
@@ -856,6 +784,7 @@ function ToysPage() {
 
 function ClothingPage() {
   const addItem = useCartStore((state) => state.addItem);
+  const catalog = useCatalogByCategory("Ropa");
   useRevealCards();
 
   return (
@@ -895,10 +824,12 @@ function ClothingPage() {
               <span className="section-kicker">Catálogo</span>
               <h2>Ropa para su ritmo</h2>
               <p>
-                6 prendas para pasear, descansar y disfrutar cada temporada.
+                Prendas para pasear, descansar y disfrutar cada temporada.
               </p>
             </div>
-            <span className="catalog-count">06 productos</span>
+            <span className="catalog-count">
+              {String(catalog.length).padStart(2, "0")} productos
+            </span>
           </div>
 
           <div className="clothing-filters" aria-label="Filtros de ropa">
@@ -920,19 +851,15 @@ function ClothingPage() {
           </div>
 
           <div className="clothing-grid">
-            {clothingProducts.map((product, index) => (
+            {catalog.map((product, index) => (
               <article
                 className="clothing-product-card animated-card"
                 key={product.name}
               >
                 <div className="clothing-product-image">
-                  {product.badge && (
-                    <span className="product-badge">{product.badge}</span>
-                  )}
                   <img
                     alt={product.name}
-                    src={clothingImage}
-                    style={{ objectPosition: product.position }}
+                    src={product.imageUrl ?? clothingImage}
                   />
                   <span className="clothing-image-index">0{index + 1}</span>
                 </div>
@@ -941,20 +868,22 @@ function ClothingPage() {
                   <h3>{product.name}</h3>
                   <div>
                     <strong>S/ {product.price.toFixed(2)}</strong>
-                    <span>{product.rating.toFixed(1)} ★</span>
+                    <span>{product.stock} disponibles</span>
                   </div>
                   <button
+                    disabled={product.stock < 1}
                     type="button"
                     onClick={() =>
                       addItem({
-                        productId: 301 + index,
+                        productId: product.id,
                         name: product.name,
                         price: product.price,
                         quantity: 1,
+                        stock: product.stock,
                       })
                     }
                   >
-                    Agregar al carrito
+                    {product.stock > 0 ? "Agregar al carrito" : "Sin stock"}
                   </button>
                 </div>
               </article>
@@ -1051,7 +980,6 @@ function CartPage() {
         throw new Error("No se recibió la URL de pago.");
       }
 
-      clearCart();
       window.location.assign(paymentResponse.data.checkoutUrl);
     } catch {
       setCheckoutError(
@@ -1198,6 +1126,59 @@ function CartPage() {
             </aside>
           </div>
         )}
+      </main>
+    </div>
+  );
+}
+
+function PaymentResultPage({ result }: { result: "success" | "pending" | "failure" }) {
+  const clearCart = useCartStore((state) => state.clearCart);
+  const [searchParams] = useSearchParams();
+  const providerStatus = searchParams.get("collection_status") ?? searchParams.get("status");
+  const approved = providerStatus === "approved" || providerStatus === "accredited";
+
+  useEffect(() => {
+    if (result === "success" && approved) {
+      clearCart();
+    }
+  }, [approved, clearCart, result]);
+
+  const content = result === "success"
+    ? {
+        eyebrow: "Pago recibido",
+        title: approved ? "¡Gracias por tu compra!" : "Estamos verificando tu pago.",
+        description: approved
+          ? "Tu pedido fue registrado. Podrás revisar cada actualización desde tu perfil."
+          : "Mercado Pago nos confirmará el estado final en unos instantes.",
+      }
+    : result === "pending"
+      ? {
+          eyebrow: "Pago pendiente",
+          title: "Tu pedido está reservado.",
+          description: "Terminaremos de procesarlo cuando Mercado Pago confirme el pago.",
+        }
+      : {
+          eyebrow: "Pago no completado",
+          title: "No se realizó el pago.",
+          description: "Tu pedido seguirá pendiente. Puedes volver a intentarlo desde tu perfil.",
+        };
+
+  return (
+    <div className="site-page cart-page">
+      <Header />
+      <main className="cart-main section-shell">
+        <section className="cart-empty">
+          <ShieldCheck size={34} />
+          <span className="section-kicker">{content.eyebrow}</span>
+          <h1>{content.title}</h1>
+          <p>{content.description}</p>
+          <Link to="/perfil">
+            Ver mis pedidos <ArrowRight size={17} />
+          </Link>
+          <Link className="cart-continue" to="/">
+            <ArrowLeft size={16} /> Volver a la tienda
+          </Link>
+        </section>
       </main>
     </div>
   );
@@ -2694,6 +2675,9 @@ function App() {
         }
         path="/carrito"
       />
+      <Route element={<PaymentResultPage result="success" />} path="/payment/success" />
+      <Route element={<PaymentResultPage result="pending" />} path="/payment/pending" />
+      <Route element={<PaymentResultPage result="failure" />} path="/payment/failure" />
       <Route
         element={
           <CustomerRoute>

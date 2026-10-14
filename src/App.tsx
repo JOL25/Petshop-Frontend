@@ -21,7 +21,14 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, Navigate, NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  NavLink,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import collarImage from "./assets/home/hero-collars.png";
 import clothingImage from "./assets/home/hero-clothing.png";
 import toysImage from "./assets/home/hero-toys.png";
@@ -46,7 +53,12 @@ type ApiOrder = {
   status: "PENDING" | "PAID" | "CANCELLED";
   total: number;
   createdAt: string;
-  items?: { id: number; productName: string; quantity: number; subtotal: number }[];
+  items?: {
+    id: number;
+    productName: string;
+    quantity: number;
+    subtotal: number;
+  }[];
 };
 
 type ApiProfile = {
@@ -141,35 +153,114 @@ const products = [
 ];
 
 const collarProducts = [
-  { name: "Collar cuero Terra", price: 45, rating: 4.9, badge: "Más vendido", position: "72% center" },
-  { name: "Collar Urban Moss", price: 42, rating: 4.8, badge: "Nuevo", position: "62% center" },
+  {
+    name: "Collar cuero Terra",
+    price: 45,
+    rating: 4.9,
+    badge: "Más vendido",
+    position: "72% center",
+  },
+  {
+    name: "Collar Urban Moss",
+    price: 42,
+    rating: 4.8,
+    badge: "Nuevo",
+    position: "62% center",
+  },
   { name: "Collar paseo Sand", price: 39, rating: 4.7, position: "78% center" },
-  { name: "Collar clásico Cocoa", price: 48, rating: 5, position: "69% center" },
-  { name: "Collar diario Clay", price: 35, rating: 4.8, position: "75% center" },
-  { name: "Collar aventura Oak", price: 52, rating: 4.9, badge: "Edición limitada", position: "58% center" },
+  {
+    name: "Collar clásico Cocoa",
+    price: 48,
+    rating: 5,
+    position: "69% center",
+  },
+  {
+    name: "Collar diario Clay",
+    price: 35,
+    rating: 4.8,
+    position: "75% center",
+  },
+  {
+    name: "Collar aventura Oak",
+    price: 52,
+    rating: 4.9,
+    badge: "Edición limitada",
+    position: "58% center",
+  },
 ];
 
 const toyProducts = [
-  { name: "Set de juego Natural", price: 29, rating: 5, badge: "Popular", position: "68% 78%" },
-  { name: "Pelota Bounce Moss", price: 18, rating: 4.8, badge: "Nuevo", position: "52% 62%" },
+  {
+    name: "Set de juego Natural",
+    price: 29,
+    rating: 5,
+    badge: "Popular",
+    position: "68% 78%",
+  },
+  {
+    name: "Pelota Bounce Moss",
+    price: 18,
+    rating: 4.8,
+    badge: "Nuevo",
+    position: "52% 62%",
+  },
   { name: "Cuerda Twist Terra", price: 24, rating: 4.7, position: "74% 72%" },
   { name: "Mordedor Loop Clay", price: 22, rating: 4.9, position: "64% 80%" },
   { name: "Dúo de exploración", price: 34, rating: 4.8, position: "58% 66%" },
-  { name: "Juguete Wild Pebble", price: 27, rating: 4.9, badge: "Edición limitada", position: "71% 74%" },
+  {
+    name: "Juguete Wild Pebble",
+    price: 27,
+    rating: 4.9,
+    badge: "Edición limitada",
+    position: "71% 74%",
+  },
 ];
 
 const clothingProducts = [
-  { name: "Suéter Active Cream", price: 38, rating: 4.8, badge: "Más vendido", position: "72% center" },
-  { name: "Abrigo Cozy Walk", price: 52, rating: 4.7, badge: "Nuevo", position: "78% center" },
-  { name: "Chaleco Soft Terra", price: 44, rating: 4.9, position: "63% center" },
+  {
+    name: "Suéter Active Cream",
+    price: 38,
+    rating: 4.8,
+    badge: "Más vendido",
+    position: "72% center",
+  },
+  {
+    name: "Abrigo Cozy Walk",
+    price: 52,
+    rating: 4.7,
+    badge: "Nuevo",
+    position: "78% center",
+  },
+  {
+    name: "Chaleco Soft Terra",
+    price: 44,
+    rating: 4.9,
+    position: "63% center",
+  },
   { name: "Polo Daily Sand", price: 32, rating: 4.8, position: "68% center" },
   { name: "Capa Rain Moss", price: 49, rating: 4.7, position: "76% center" },
-  { name: "Hoodie Weekend Clay", price: 56, rating: 5, badge: "Edición limitada", position: "58% center" },
+  {
+    name: "Hoodie Weekend Clay",
+    price: 56,
+    rating: 5,
+    badge: "Edición limitada",
+    position: "58% center",
+  },
 ];
 
 const profileOrders = [
-  { id: "#TR-2048", date: "12 oct 2026", status: "En camino", total: "S/ 87.00" },
-  { id: "#TR-1982", date: "28 sep 2026", status: "Entregado", total: "S/ 45.00" },
+  {
+    id: "#TR-2048",
+    date: "12 oct 2026",
+    status: "En camino",
+    total: "S/ 87.00",
+  },
+  {
+    id: "#TR-1982",
+    date: "28 sep 2026",
+    status: "Entregado",
+    total: "S/ 45.00",
+  },
 ];
 
 function Header() {
@@ -188,26 +279,34 @@ function Header() {
 
         <nav className={`main-nav ${menuOpen ? "main-nav--open" : ""}`}>
           <NavLink
-            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            className={({ isActive }) =>
+              `nav-link${isActive ? " nav-link--active" : ""}`
+            }
             end
             to="/"
           >
             Inicio
           </NavLink>
           <NavLink
-            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            className={({ isActive }) =>
+              `nav-link${isActive ? " nav-link--active" : ""}`
+            }
             to="/collares"
           >
             Collares
           </NavLink>
           <NavLink
-            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            className={({ isActive }) =>
+              `nav-link${isActive ? " nav-link--active" : ""}`
+            }
             to="/juguetes"
           >
             Juguetes
           </NavLink>
           <NavLink
-            className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+            className={({ isActive }) =>
+              `nav-link${isActive ? " nav-link--active" : ""}`
+            }
             to="/ropa"
           >
             Ropa
@@ -220,17 +319,38 @@ function Header() {
         <div className="header-actions">
           <label className="search-box">
             <Search aria-hidden="true" size={18} />
-            <input aria-label="Buscar productos" placeholder="Buscar productos..." />
+            <input
+              aria-label="Buscar productos"
+              placeholder="Buscar productos..."
+            />
           </label>
-          <Link aria-label={`Carrito con ${itemCount} productos`} className="icon-button" to="/carrito">
+          <Link
+            aria-label={`Carrito con ${itemCount} productos`}
+            className="icon-button"
+            to="/carrito"
+          >
             <ShoppingBag size={21} />
             {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
           </Link>
-          <Link aria-label={user ? "Mi cuenta" : "Iniciar sesión"} className="icon-button" to={user?.role === "ADMIN" ? "/administracion" : user ? "/perfil" : "/acceso"}>
+          <Link
+            aria-label={user ? "Mi cuenta" : "Iniciar sesión"}
+            className="icon-button"
+            to={
+              user?.role === "ADMIN"
+                ? "/administracion"
+                : user
+                  ? "/perfil"
+                  : "/acceso"
+            }
+          >
             <UserRound size={21} />
           </Link>
           {user?.role === "ADMIN" && (
-            <Link aria-label="Panel administrativo" className="icon-button" to="/administracion">
+            <Link
+              aria-label="Panel administrativo"
+              className="icon-button"
+              to="/administracion"
+            >
               <Settings size={20} />
             </Link>
           )}
@@ -366,8 +486,13 @@ function BestSellersSection() {
   const [catalog, setCatalog] = useState<ApiProduct[]>([]);
 
   useEffect(() => {
-    apiClient.get<ApiProduct[]>("/products")
-      .then((response) => setCatalog(response.data.filter((product) => product.stock > 0).slice(0, 4)))
+    apiClient
+      .get<ApiProduct[]>("/products")
+      .then((response) =>
+        setCatalog(
+          response.data.filter((product) => product.stock > 0).slice(0, 4),
+        ),
+      )
       .catch(() => setCatalog([]));
   }, []);
 
@@ -376,7 +501,9 @@ function BestSellersSection() {
       <div className="section-shell">
         <div className="section-heading">
           <div>
-            <span className="section-kicker">Elegidos por nuestra comunidad</span>
+            <span className="section-kicker">
+              Elegidos por nuestra comunidad
+            </span>
             <h2>Más vendidos</h2>
             <p>Favoritos que combinan diseño, comodidad y resistencia.</p>
           </div>
@@ -390,7 +517,9 @@ function BestSellersSection() {
                   alt={product.name}
                   className="product-image"
                   src={products[index % products.length].image}
-                  style={{ objectPosition: products[index % products.length].position }}
+                  style={{
+                    objectPosition: products[index % products.length].position,
+                  }}
                 />
               </div>
               <div className="product-info">
@@ -430,7 +559,9 @@ function Footer() {
           <Link className="footer-brand" to="/">
             Triopi Petshop
           </Link>
-          <p>Bienestar, diseño y alegría para quienes hacen hogar con nosotros.</p>
+          <p>
+            Bienestar, diseño y alegría para quienes hacen hogar con nosotros.
+          </p>
         </div>
         <div>
           <h3>Atención</h3>
@@ -467,7 +598,10 @@ function useRevealCards() {
             }
 
             card.dataset.revealed = "true";
-            card.classList.add("animated-card--visible", "animated-card--entering");
+            card.classList.add(
+              "animated-card--visible",
+              "animated-card--entering",
+            );
             card.addEventListener(
               "animationend",
               () => card.classList.remove("animated-card--entering"),
@@ -519,7 +653,8 @@ function CollarsPage() {
             <span className="section-kicker">Colección esencial</span>
             <h1>Collares para cada aventura.</h1>
             <p>
-              Piezas cómodas, resistentes y con carácter para acompañar todos sus paseos.
+              Piezas cómodas, resistentes y con carácter para acompañar todos
+              sus paseos.
             </p>
             <a className="primary-button" href="#catalogo-collares">
               Ver colección <ArrowRight size={18} />
@@ -533,7 +668,10 @@ function CollarsPage() {
           </div>
         </section>
 
-        <section className="collars-catalog section-shell" id="catalogo-collares">
+        <section
+          className="collars-catalog section-shell"
+          id="catalogo-collares"
+        >
           <div className="collars-catalog-heading">
             <div>
               <span className="section-kicker">Catálogo</span>
@@ -544,18 +682,35 @@ function CollarsPage() {
           </div>
 
           <div className="collar-filters" aria-label="Filtros de collares">
-            <button className="filter-chip filter-chip--active" type="button">Todos</button>
-            <button className="filter-chip" type="button">Cuero</button>
-            <button className="filter-chip" type="button">Paseo</button>
-            <button className="filter-chip" type="button">Ajustables</button>
+            <button className="filter-chip filter-chip--active" type="button">
+              Todos
+            </button>
+            <button className="filter-chip" type="button">
+              Cuero
+            </button>
+            <button className="filter-chip" type="button">
+              Paseo
+            </button>
+            <button className="filter-chip" type="button">
+              Ajustables
+            </button>
           </div>
 
           <div className="collar-grid">
             {collarProducts.map((product, index) => (
-              <article className="collar-product-card animated-card" key={product.name}>
+              <article
+                className="collar-product-card animated-card"
+                key={product.name}
+              >
                 <div className="collar-product-image">
-                  {product.badge && <span className="product-badge">{product.badge}</span>}
-                  <img alt={product.name} src={collarImage} style={{ objectPosition: product.position }} />
+                  {product.badge && (
+                    <span className="product-badge">{product.badge}</span>
+                  )}
+                  <img
+                    alt={product.name}
+                    src={collarImage}
+                    style={{ objectPosition: product.position }}
+                  />
                   <span className="collar-image-index">0{index + 1}</span>
                 </div>
                 <div className="collar-product-info">
@@ -607,7 +762,8 @@ function ToysPage() {
             <span className="section-kicker">Diversión sin pausa</span>
             <h1>Juguetes que despiertan su curiosidad.</h1>
             <p>
-              Texturas, formas y movimiento para transformar cada momento en una nueva aventura.
+              Texturas, formas y movimiento para transformar cada momento en una
+              nueva aventura.
             </p>
             <a className="toys-primary-button" href="#catalogo-juguetes">
               Explorar juguetes <ArrowRight size={18} />
@@ -633,18 +789,38 @@ function ToysPage() {
           </div>
 
           <div className="toy-filters" aria-label="Filtros de juguetes">
-            <button className="toy-filter-chip toy-filter-chip--active" type="button">Todos</button>
-            <button className="toy-filter-chip" type="button">Mordedores</button>
-            <button className="toy-filter-chip" type="button">Interactivos</button>
-            <button className="toy-filter-chip" type="button">Pelotas</button>
+            <button
+              className="toy-filter-chip toy-filter-chip--active"
+              type="button"
+            >
+              Todos
+            </button>
+            <button className="toy-filter-chip" type="button">
+              Mordedores
+            </button>
+            <button className="toy-filter-chip" type="button">
+              Interactivos
+            </button>
+            <button className="toy-filter-chip" type="button">
+              Pelotas
+            </button>
           </div>
 
           <div className="toy-grid">
             {toyProducts.map((product, index) => (
-              <article className="toy-product-card animated-card" key={product.name}>
+              <article
+                className="toy-product-card animated-card"
+                key={product.name}
+              >
                 <div className="toy-product-image">
-                  {product.badge && <span className="product-badge">{product.badge}</span>}
-                  <img alt={product.name} src={toysImage} style={{ objectPosition: product.position }} />
+                  {product.badge && (
+                    <span className="product-badge">{product.badge}</span>
+                  )}
+                  <img
+                    alt={product.name}
+                    src={toysImage}
+                    style={{ objectPosition: product.position }}
+                  />
                   <span className="toy-image-index">0{index + 1}</span>
                 </div>
                 <div className="toy-product-info">
@@ -696,7 +872,8 @@ function ClothingPage() {
             <span className="section-kicker">Comodidad diaria</span>
             <h1>Ropa que acompaña cada paso.</h1>
             <p>
-              Prendas suaves y funcionales, hechas para protegerlos y darles libertad de movimiento.
+              Prendas suaves y funcionales, hechas para protegerlos y darles
+              libertad de movimiento.
             </p>
             <a className="clothing-primary-button" href="#catalogo-ropa">
               Ver colección <ArrowRight size={18} />
@@ -706,7 +883,9 @@ function ClothingPage() {
             <span className="clothing-line clothing-line--one" />
             <span className="clothing-line clothing-line--two" />
             <img alt="" src={clothingImage} />
-            <span className="clothing-hero-label">Suave por dentro y por fuera</span>
+            <span className="clothing-hero-label">
+              Suave por dentro y por fuera
+            </span>
           </div>
         </section>
 
@@ -715,24 +894,46 @@ function ClothingPage() {
             <div>
               <span className="section-kicker">Catálogo</span>
               <h2>Ropa para su ritmo</h2>
-              <p>6 prendas para pasear, descansar y disfrutar cada temporada.</p>
+              <p>
+                6 prendas para pasear, descansar y disfrutar cada temporada.
+              </p>
             </div>
             <span className="catalog-count">06 productos</span>
           </div>
 
           <div className="clothing-filters" aria-label="Filtros de ropa">
-            <button className="clothing-filter-chip clothing-filter-chip--active" type="button">Todos</button>
-            <button className="clothing-filter-chip" type="button">Abrigos</button>
-            <button className="clothing-filter-chip" type="button">Suéteres</button>
-            <button className="clothing-filter-chip" type="button">Paseo</button>
+            <button
+              className="clothing-filter-chip clothing-filter-chip--active"
+              type="button"
+            >
+              Todos
+            </button>
+            <button className="clothing-filter-chip" type="button">
+              Abrigos
+            </button>
+            <button className="clothing-filter-chip" type="button">
+              Suéteres
+            </button>
+            <button className="clothing-filter-chip" type="button">
+              Paseo
+            </button>
           </div>
 
           <div className="clothing-grid">
             {clothingProducts.map((product, index) => (
-              <article className="clothing-product-card animated-card" key={product.name}>
+              <article
+                className="clothing-product-card animated-card"
+                key={product.name}
+              >
                 <div className="clothing-product-image">
-                  {product.badge && <span className="product-badge">{product.badge}</span>}
-                  <img alt={product.name} src={clothingImage} style={{ objectPosition: product.position }} />
+                  {product.badge && (
+                    <span className="product-badge">{product.badge}</span>
+                  )}
+                  <img
+                    alt={product.name}
+                    src={clothingImage}
+                    style={{ objectPosition: product.position }}
+                  />
                   <span className="clothing-image-index">0{index + 1}</span>
                 </div>
                 <div className="clothing-product-info">
@@ -779,22 +980,43 @@ function CartPage() {
   const [catalogNotice, setCatalogNotice] = useState("");
 
   useEffect(() => {
-    apiClient.get<ApiProduct[]>("/products")
+    apiClient
+      .get<ApiProduct[]>("/products")
       .then((response) => {
-        const catalog = new Map(response.data.map((product) => [product.id, product]));
+        const catalog = new Map(
+          response.data.map((product) => [product.id, product]),
+        );
         const currentItems = useCartStore.getState().items;
         const syncedItems = currentItems.flatMap((item) => {
           const product = catalog.get(item.productId);
           if (!product || product.stock < 1) return [];
-          return [{ productId: product.id, name: product.name, price: product.price, quantity: Math.min(item.quantity, product.stock), stock: product.stock }];
+          return [
+            {
+              productId: product.id,
+              name: product.name,
+              price: product.price,
+              quantity: Math.min(item.quantity, product.stock),
+              stock: product.stock,
+            },
+          ];
         });
-        if (syncedItems.length !== currentItems.length) setCatalogNotice("Actualizamos tu bolsa: algunos productos ya no estan disponibles.");
+        if (syncedItems.length !== currentItems.length)
+          setCatalogNotice(
+            "Actualizamos tu bolsa: algunos productos ya no estan disponibles.",
+          );
         replaceItems(syncedItems);
       })
-      .catch(() => setCatalogNotice("No pudimos actualizar el stock. Se validara antes del pago."));
+      .catch(() =>
+        setCatalogNotice(
+          "No pudimos actualizar el stock. Se validara antes del pago.",
+        ),
+      );
   }, [replaceItems]);
 
-  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal = items.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   const handleCheckout = async () => {
@@ -804,7 +1026,9 @@ function CartPage() {
     }
 
     if (!user) {
-      setCheckoutError("Inicia sesión para crear el pedido y continuar al pago.");
+      setCheckoutError(
+        "Inicia sesión para crear el pedido y continuar al pago.",
+      );
       return;
     }
 
@@ -844,12 +1068,24 @@ function CartPage() {
       <main className="cart-main section-shell">
         <div className="cart-heading">
           <div>
-            <div className="breadcrumbs"><Link to="/">Inicio</Link><span>/</span><span>Carrito</span></div>
+            <div className="breadcrumbs">
+              <Link to="/">Inicio</Link>
+              <span>/</span>
+              <span>Carrito</span>
+            </div>
             <span className="section-kicker">Tu selección</span>
             <h1>Bolsa de compras</h1>
-            <p>{itemCount ? `${itemCount} producto${itemCount === 1 ? "" : "s"} listo${itemCount === 1 ? "" : "s"} para acompañar sus aventuras.` : "Aún no agregaste productos a tu bolsa."}</p>
+            <p>
+              {itemCount
+                ? `${itemCount} producto${itemCount === 1 ? "" : "s"} listo${itemCount === 1 ? "" : "s"} para acompañar sus aventuras.`
+                : "Aún no agregaste productos a tu bolsa."}
+            </p>
           </div>
-          {items.length > 0 && <button className="cart-clear" type="button" onClick={clearCart}>Vaciar bolsa</button>}
+          {items.length > 0 && (
+            <button className="cart-clear" type="button" onClick={clearCart}>
+              Vaciar bolsa
+            </button>
+          )}
         </div>
 
         {catalogNotice && <p className="cart-error">{catalogNotice}</p>}
@@ -857,23 +1093,64 @@ function CartPage() {
           <section className="cart-empty">
             <ShoppingBag size={34} />
             <h2>Tu bolsa está esperando.</h2>
-            <p>Descubre productos pensados para sus paseos, juegos y momentos de descanso.</p>
-            <Link to="/">Explorar tienda <ArrowRight size={17} /></Link>
+            <p>
+              Descubre productos pensados para sus paseos, juegos y momentos de
+              descanso.
+            </p>
+            <Link to="/">
+              Explorar tienda <ArrowRight size={17} />
+            </Link>
           </section>
         ) : (
           <div className="cart-layout">
-            <section className="cart-items" aria-label="Productos en tu carrito">
+            <section
+              className="cart-items"
+              aria-label="Productos en tu carrito"
+            >
               {items.map((item) => (
                 <article className="cart-item" key={item.productId}>
-                  <div className="cart-item-art"><ShoppingBag size={23} /></div>
-                  <div className="cart-item-info"><span>Triopi Petshop</span><h2>{item.name}</h2><strong>S/ {item.price.toFixed(2)}</strong></div>
-                  <div className="cart-quantity" aria-label={`Cantidad de ${item.name}`}>
-                    <button aria-label={`Reducir ${item.name}`} type="button" onClick={() => decreaseItem(item.productId)}><Minus size={15} /></button>
-                    <span>{item.quantity}</span>
-                    <button aria-label={`Aumentar ${item.name}`} disabled={item.quantity >= (item.stock ?? Number.MAX_SAFE_INTEGER)} type="button" onClick={() => increaseItem(item.productId)}><Plus size={15} /></button>
+                  <div className="cart-item-art">
+                    <ShoppingBag size={23} />
                   </div>
-                  <strong className="cart-item-total">S/ {(item.price * item.quantity).toFixed(2)}</strong>
-                  <button aria-label={`Eliminar ${item.name}`} className="cart-remove" type="button" onClick={() => removeItem(item.productId)}><Trash2 size={18} /></button>
+                  <div className="cart-item-info">
+                    <span>Triopi Petshop</span>
+                    <h2>{item.name}</h2>
+                    <strong>S/ {item.price.toFixed(2)}</strong>
+                  </div>
+                  <div
+                    className="cart-quantity"
+                    aria-label={`Cantidad de ${item.name}`}
+                  >
+                    <button
+                      aria-label={`Reducir ${item.name}`}
+                      type="button"
+                      onClick={() => decreaseItem(item.productId)}
+                    >
+                      <Minus size={15} />
+                    </button>
+                    <span>{item.quantity}</span>
+                    <button
+                      aria-label={`Aumentar ${item.name}`}
+                      disabled={
+                        item.quantity >= (item.stock ?? Number.MAX_SAFE_INTEGER)
+                      }
+                      type="button"
+                      onClick={() => increaseItem(item.productId)}
+                    >
+                      <Plus size={15} />
+                    </button>
+                  </div>
+                  <strong className="cart-item-total">
+                    S/ {(item.price * item.quantity).toFixed(2)}
+                  </strong>
+                  <button
+                    aria-label={`Eliminar ${item.name}`}
+                    className="cart-remove"
+                    type="button"
+                    onClick={() => removeItem(item.productId)}
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </article>
               ))}
             </section>
@@ -881,16 +1158,43 @@ function CartPage() {
             <aside className="cart-summary">
               <span className="section-kicker">Resumen</span>
               <h2>Tu pedido</h2>
-              <div className="cart-summary-row"><span>Subtotal</span><strong>S/ {subtotal.toFixed(2)}</strong></div>
-              <div className="cart-summary-row"><span>Envío</span><span>Se calcula al pagar</span></div>
-              <div className="cart-total"><span>Total estimado</span><strong>S/ {subtotal.toFixed(2)}</strong></div>
+              <div className="cart-summary-row">
+                <span>Subtotal</span>
+                <strong>S/ {subtotal.toFixed(2)}</strong>
+              </div>
+              <div className="cart-summary-row">
+                <span>Envío</span>
+                <span>Se calcula al pagar</span>
+              </div>
+              <div className="cart-total">
+                <span>Total estimado</span>
+                <strong>S/ {subtotal.toFixed(2)}</strong>
+              </div>
               {checkoutError && <p className="cart-error">{checkoutError}</p>}
-              <button className="cart-checkout" disabled={isCheckingOut} type="button" onClick={handleCheckout}>
-                <CreditCard size={18} /> {isCheckingOut ? "Preparando pago..." : "Continuar al pago"}
+              <button
+                className="cart-checkout"
+                disabled={isCheckingOut}
+                type="button"
+                onClick={handleCheckout}
+              >
+                <CreditCard size={18} />{" "}
+                {isCheckingOut ? "Preparando pago..." : "Continuar al pago"}
               </button>
-              {!user && <p className="cart-login-hint">El pago requiere una sesión activa. <Link to="/acceso">Inicia sesión o crea tu cuenta.</Link></p>}
-              <div className="cart-security"><ShieldCheck size={18} /><span>El total y el stock se validan de forma segura en el backend.</span></div>
-              <Link className="cart-continue" to="/"><ArrowLeft size={16} /> Seguir comprando</Link>
+              {!user && (
+                <p className="cart-login-hint">
+                  El pago requiere una sesión activa.{" "}
+                  <Link to="/acceso">Inicia sesión o crea tu cuenta.</Link>
+                </p>
+              )}
+              <div className="cart-security">
+                <ShieldCheck size={18} />
+                <span>
+                  El total y el stock se validan de forma segura en el backend.
+                </span>
+              </div>
+              <Link className="cart-continue" to="/">
+                <ArrowLeft size={16} /> Seguir comprando
+              </Link>
             </aside>
           </div>
         )}
@@ -926,7 +1230,10 @@ function AuthPage() {
 
     try {
       const endpoint = mode === "login" ? "/auth/login" : "/auth/register";
-      const payload = mode === "login" ? { email, password } : { name: name.trim(), email, password };
+      const payload =
+        mode === "login"
+          ? { email, password }
+          : { name: name.trim(), email, password };
       const response = await apiClient.post<{
         token: string;
         userId: number;
@@ -958,7 +1265,26 @@ function AuthPage() {
 
   if (user) {
     return (
-      <div className="site-page auth-page"><main className="auth-main"><section className="auth-card auth-card--signed"><Link aria-label="Ir a mi perfil" className="auth-back auth-back--icon" to="/perfil"><ArrowLeft size={19} /></Link><UserRound size={30} /><span className="section-kicker">Sesión activa</span><h1>Ya estás dentro, {user.name.split(" ")[0]}.</h1><p>Tu cuenta está lista para continuar comprando.</p><Link to="/perfil">Ir a mi perfil <ArrowRight size={17} /></Link></section></main></div>
+      <div className="site-page auth-page">
+        <main className="auth-main">
+          <section className="auth-card auth-card--signed">
+            <Link
+              aria-label="Ir a mi perfil"
+              className="auth-back auth-back--icon"
+              to="/perfil"
+            >
+              <ArrowLeft size={19} />
+            </Link>
+            <UserRound size={30} />
+            <span className="section-kicker">Sesión activa</span>
+            <h1>Ya estás dentro, {user.name.split(" ")[0]}.</h1>
+            <p>Tu cuenta está lista para continuar comprando.</p>
+            <Link to="/perfil">
+              Ir a mi perfil <ArrowRight size={17} />
+            </Link>
+          </section>
+        </main>
+      </div>
     );
   }
 
@@ -967,26 +1293,115 @@ function AuthPage() {
       <main className="auth-main">
         <section className="auth-showcase" aria-hidden="true">
           <img alt="" src={collarImage} />
-          <div><span>Triopi Petshop</span><strong>Todo para sus mejores días.</strong></div>
+          <div>
+            <span>Triopi Petshop</span>
+            <strong>Todo para sus mejores días.</strong>
+          </div>
         </section>
         <section className="auth-panel">
           <div className="auth-panel-inner">
-            <Link aria-label="Volver al inicio" className="auth-back auth-back--icon" to="/"><ArrowLeft size={19} /></Link>
+            <Link
+              aria-label="Volver al inicio"
+              className="auth-back auth-back--icon"
+              to="/"
+            >
+              <ArrowLeft size={19} />
+            </Link>
             <span className="section-kicker">Mi cuenta</span>
             <h1>{mode === "login" ? "Qué bueno verte." : "Crea tu cuenta."}</h1>
-            <p>{mode === "login" ? "Inicia sesión para continuar con tu compra y ver tus pedidos." : "Regístrate para guardar tus pedidos y pagar de forma segura."}</p>
+            <p>
+              {mode === "login"
+                ? "Inicia sesión para continuar con tu compra y ver tus pedidos."
+                : "Regístrate para guardar tus pedidos y pagar de forma segura."}
+            </p>
             <div className="auth-tabs" role="tablist">
-              <button className={mode === "login" ? "auth-tab auth-tab--active" : "auth-tab"} type="button" onClick={() => { setMode("login"); setError(""); }}>Iniciar sesión</button>
-              <button className={mode === "register" ? "auth-tab auth-tab--active" : "auth-tab"} type="button" onClick={() => { setMode("register"); setError(""); }}>Crear cuenta</button>
+              <button
+                className={
+                  mode === "login" ? "auth-tab auth-tab--active" : "auth-tab"
+                }
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError("");
+                }}
+              >
+                Iniciar sesión
+              </button>
+              <button
+                className={
+                  mode === "register" ? "auth-tab auth-tab--active" : "auth-tab"
+                }
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setError("");
+                }}
+              >
+                Crear cuenta
+              </button>
             </div>
             <form className="auth-form" key={mode} onSubmit={submitAuth}>
-              {mode === "register" && <label>Nombre completo<input autoComplete="name" onChange={(event) => setName(event.target.value)} placeholder="Tu nombre" required value={name} /></label>}
-              <label>Correo electrónico<div className="auth-input"><Mail size={17} /><input autoComplete="email" onChange={(event) => setEmail(event.target.value)} placeholder="tu@correo.com" required type="email" value={email} /></div></label>
-              <label>Contraseña<div className="auth-input"><LockKeyhole size={17} /><input autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} onChange={(event) => setPassword(event.target.value)} placeholder="Mínimo 8 caracteres" required type="password" value={password} /></div></label>
+              {mode === "register" && (
+                <label>
+                  Nombre completo
+                  <input
+                    autoComplete="name"
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Tu nombre"
+                    required
+                    value={name}
+                  />
+                </label>
+              )}
+              <label>
+                Correo electrónico
+                <div className="auth-input">
+                  <Mail size={17} />
+                  <input
+                    autoComplete="email"
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="tu@correo.com"
+                    required
+                    type="email"
+                    value={email}
+                  />
+                </div>
+              </label>
+              <label>
+                Contraseña
+                <div className="auth-input">
+                  <LockKeyhole size={17} />
+                  <input
+                    autoComplete={
+                      mode === "login" ? "current-password" : "new-password"
+                    }
+                    minLength={8}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Mínimo 8 caracteres"
+                    required
+                    type="password"
+                    value={password}
+                  />
+                </div>
+              </label>
               {error && <p className="auth-error">{error}</p>}
-              <button className="auth-submit" disabled={isSubmitting} type="submit">{isSubmitting ? "Procesando..." : mode === "login" ? "Iniciar sesión" : "Crear mi cuenta"} <ArrowRight size={17} /></button>
+              <button
+                className="auth-submit"
+                disabled={isSubmitting}
+                type="submit"
+              >
+                {isSubmitting
+                  ? "Procesando..."
+                  : mode === "login"
+                    ? "Iniciar sesión"
+                    : "Crear mi cuenta"}{" "}
+                <ArrowRight size={17} />
+              </button>
             </form>
-            <p className="auth-note">Al continuar aceptas los términos de servicio y la política de privacidad de Triopi Petshop.</p>
+            <p className="auth-note">
+              Al continuar aceptas los términos de servicio y la política de
+              privacidad de Triopi Petshop.
+            </p>
           </div>
         </section>
       </main>
@@ -1008,13 +1423,24 @@ function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([apiClient.get<ApiProfile>("/users/me"), apiClient.get<ApiOrder[]>("/orders/my-orders")])
+    Promise.all([
+      apiClient.get<ApiProfile>("/users/me"),
+      apiClient.get<ApiOrder[]>("/orders/my-orders"),
+    ])
       .then(([profileResponse, ordersResponse]) => {
         setProfile(profileResponse.data);
-        setDraft({ name: profileResponse.data.name, email: profileResponse.data.email, password: "" });
+        setDraft({
+          name: profileResponse.data.name,
+          email: profileResponse.data.email,
+          password: "",
+        });
         setOrders(ordersResponse.data);
       })
-      .catch(() => setMessage("No pudimos cargar tu informacion. Intenta actualizar la pagina."))
+      .catch(() =>
+        setMessage(
+          "No pudimos cargar tu informacion. Intenta actualizar la pagina.",
+        ),
+      )
       .finally(() => setIsLoading(false));
   }, [user]);
 
@@ -1023,22 +1449,51 @@ function ProfilePage() {
     setMessage("");
     setIsSaving(true);
     try {
-      const response = await apiClient.put<{ profile: ApiProfile; token: string }>("/users/me", draft);
+      const response = await apiClient.put<{
+        profile: ApiProfile;
+        token: string;
+      }>("/users/me", draft);
       setProfile(response.data.profile);
-      setDraft({ name: response.data.profile.name, email: response.data.profile.email, password: "" });
-      updateUser({ id: response.data.profile.id, name: response.data.profile.name, email: response.data.profile.email, role: response.data.profile.role });
+      setDraft({
+        name: response.data.profile.name,
+        email: response.data.profile.email,
+        password: "",
+      });
+      updateUser({
+        id: response.data.profile.id,
+        name: response.data.profile.name,
+        email: response.data.profile.email,
+        role: response.data.profile.role,
+      });
       localStorage.setItem("petshop-token", response.data.token);
       setIsEditing(false);
       setMessage("Tus datos se guardaron correctamente.");
     } catch {
-      setMessage("No pudimos guardar los cambios. Revisa los datos e intenta otra vez.");
+      setMessage(
+        "No pudimos guardar los cambios. Revisa los datos e intenta otra vez.",
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
   if (!user) {
-    return <div className="site-page profile-page"><Header /><main className="auth-main"><section className="auth-card auth-card--signed"><UserRound size={30} /><span className="section-kicker">Mi cuenta</span><h1>Inicia sesion para ver tu perfil.</h1><p>Tu informacion y tus pedidos estan protegidos en tu cuenta.</p><Link to="/acceso">Ir a iniciar sesion <ArrowRight size={17} /></Link></section></main></div>;
+    return (
+      <div className="site-page profile-page">
+        <Header />
+        <main className="auth-main">
+          <section className="auth-card auth-card--signed">
+            <UserRound size={30} />
+            <span className="section-kicker">Mi cuenta</span>
+            <h1>Inicia sesion para ver tu perfil.</h1>
+            <p>Tu informacion y tus pedidos estan protegidos en tu cuenta.</p>
+            <Link to="/acceso">
+              Ir a iniciar sesion <ArrowRight size={17} />
+            </Link>
+          </section>
+        </main>
+      </div>
+    );
   }
 
   if (user.role === "ADMIN") {
@@ -1047,19 +1502,179 @@ function ProfilePage() {
 
   const activeProfile = profile ?? user;
   const firstName = activeProfile.name.split(" ")[0];
-  const initials = activeProfile.name.split(" ").map((part) => part[0]).slice(0, 2).join("");
+  const initials = activeProfile.name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("");
 
   return (
     <div className="site-page profile-page">
       <Header />
       <main className="profile-main section-shell">
-        <div className="profile-intro"><div><div className="breadcrumbs"><Link to="/">Inicio</Link><span>/</span><span>Mi cuenta</span></div><span className="section-kicker">Mi espacio</span><h1>Hola, {firstName}.</h1><p>Gestiona tu informacion, pedidos y favoritos desde un solo lugar.</p></div></div>
+        <div className="profile-intro">
+          <div>
+            <div className="breadcrumbs">
+              <Link to="/">Inicio</Link>
+              <span>/</span>
+              <span>Mi cuenta</span>
+            </div>
+            <span className="section-kicker">Mi espacio</span>
+            <h1>Hola, {firstName}.</h1>
+            <p>
+              Gestiona tu informacion, pedidos y favoritos desde un solo lugar.
+            </p>
+          </div>
+        </div>
         <div className="profile-layout">
-          <aside className="profile-sidebar animated-card"><div className="profile-avatar">{initials}</div><h2>{activeProfile.name}</h2><p>{activeProfile.email}</p><span className="profile-role">{activeProfile.role === "ADMIN" ? "Administrador" : "Cliente Triopi"}</span><nav aria-label="Navegacion de perfil" className="profile-nav"><a className="profile-nav-item profile-nav-item--active" href="#mi-perfil"><UserRound size={18} /> Mi perfil</a><a className="profile-nav-item" href="#mis-pedidos"><PackageCheck size={18} /> Mis pedidos</a><a className="profile-nav-item" href="#favoritos"><Heart size={18} /> Favoritos</a><a className="profile-nav-item" href="#ajustes"><Settings size={18} /> Ajustes</a></nav><button className="profile-logout" type="button" onClick={logout}><LogOut size={17} /> Cerrar sesion</button></aside>
+          <aside className="profile-sidebar animated-card">
+            <div className="profile-avatar">{initials}</div>
+            <h2>{activeProfile.name}</h2>
+            <p>{activeProfile.email}</p>
+            <span className="profile-role">
+              {activeProfile.role === "ADMIN"
+                ? "Administrador"
+                : "Cliente Triopi"}
+            </span>
+            <nav aria-label="Navegacion de perfil" className="profile-nav">
+              <a
+                className="profile-nav-item profile-nav-item--active"
+                href="#mi-perfil"
+              >
+                <UserRound size={18} /> Mi perfil
+              </a>
+              <a className="profile-nav-item" href="#mis-pedidos">
+                <PackageCheck size={18} /> Mis pedidos
+              </a>
+              <a className="profile-nav-item" href="#favoritos">
+                <Heart size={18} /> Favoritos
+              </a>
+              <a className="profile-nav-item" href="#ajustes">
+                <Settings size={18} /> Ajustes
+              </a>
+            </nav>
+            <button className="profile-logout" type="button" onClick={logout}>
+              <LogOut size={17} /> Cerrar sesion
+            </button>
+          </aside>
           <div className="profile-content">
-            <section className="profile-card animated-card" id="mi-perfil"><form onSubmit={saveProfile}><div className="profile-card-heading"><div><span className="section-kicker">Datos personales</span><h2>Tu perfil</h2></div><button type={isEditing ? "submit" : "button"} disabled={isSaving} onClick={() => !isEditing && setIsEditing(true)}>{isSaving ? "Guardando..." : isEditing ? "Guardar cambios" : "Editar informacion"}</button></div><div className="profile-fields"><label>Nombre completo<input disabled={!isEditing} onChange={(event) => setDraft({ ...draft, name: event.target.value })} required value={isEditing ? draft.name : activeProfile.name} /></label><label>Correo electronico<input disabled={!isEditing} onChange={(event) => setDraft({ ...draft, email: event.target.value })} required type="email" value={isEditing ? draft.email : activeProfile.email} /></label>{isEditing && <label>Contrasena nueva (opcional)<input autoComplete="new-password" minLength={8} onChange={(event) => setDraft({ ...draft, password: event.target.value })} placeholder="Deja vacio para conservarla" type="password" value={draft.password} /></label>}</div></form>{message && <p className="auth-error">{message}</p>}</section>
-            <section className="profile-card animated-card" id="mis-pedidos"><div className="profile-card-heading"><div><span className="section-kicker">Historial</span><h2>Pedidos recientes</h2></div></div><div className="profile-orders">{isLoading ? <p>Cargando pedidos...</p> : orders.length === 0 ? <p>Aun no tienes pedidos. Cuando completes una compra aparecera aqui.</p> : orders.map((order) => <article className="profile-order" key={order.id}><div className="profile-order-icon"><PackageCheck size={20} /></div><div><strong>#{order.id}</strong><span>{new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(new Date(order.createdAt))}</span></div><span className={`order-status ${order.status === "PENDING" ? "order-status--shipping" : ""}`}>{order.status === "PENDING" ? "Pendiente de pago" : order.status === "PAID" ? "Pagado" : "Cancelado"}</span><strong>S/ {Number(order.total).toFixed(2)}</strong></article>)}</div></section>
-            <section className="profile-favorites animated-card" id="favoritos"><Heart size={22} /><div><span className="section-kicker">Tus favoritos</span><h2>Aun no guardaste productos.</h2><p>Explora las colecciones y guarda lo que mas le guste.</p></div><Link to="/">Explorar tienda <ArrowRight size={16} /></Link></section>
+            <section className="profile-card animated-card" id="mi-perfil">
+              <form onSubmit={saveProfile}>
+                <div className="profile-card-heading">
+                  <div>
+                    <span className="section-kicker">Datos personales</span>
+                    <h2>Tu perfil</h2>
+                  </div>
+                  <button
+                    type={isEditing ? "submit" : "button"}
+                    disabled={isSaving}
+                    onClick={() => !isEditing && setIsEditing(true)}
+                  >
+                    {isSaving
+                      ? "Guardando..."
+                      : isEditing
+                        ? "Guardar cambios"
+                        : "Editar informacion"}
+                  </button>
+                </div>
+                <div className="profile-fields">
+                  <label>
+                    Nombre completo
+                    <input
+                      disabled={!isEditing}
+                      onChange={(event) =>
+                        setDraft({ ...draft, name: event.target.value })
+                      }
+                      required
+                      value={isEditing ? draft.name : activeProfile.name}
+                    />
+                  </label>
+                  <label>
+                    Correo electronico
+                    <input
+                      disabled={!isEditing}
+                      onChange={(event) =>
+                        setDraft({ ...draft, email: event.target.value })
+                      }
+                      required
+                      type="email"
+                      value={isEditing ? draft.email : activeProfile.email}
+                    />
+                  </label>
+                  {isEditing && (
+                    <label>
+                      Contrasena nueva (opcional)
+                      <input
+                        autoComplete="new-password"
+                        minLength={8}
+                        onChange={(event) =>
+                          setDraft({ ...draft, password: event.target.value })
+                        }
+                        placeholder="Deja vacio para conservarla"
+                        type="password"
+                        value={draft.password}
+                      />
+                    </label>
+                  )}
+                </div>
+              </form>
+              {message && <p className="auth-error">{message}</p>}
+            </section>
+            <section className="profile-card animated-card" id="mis-pedidos">
+              <div className="profile-card-heading">
+                <div>
+                  <span className="section-kicker">Historial</span>
+                  <h2>Pedidos recientes</h2>
+                </div>
+              </div>
+              <div className="profile-orders">
+                {isLoading ? (
+                  <p>Cargando pedidos...</p>
+                ) : orders.length === 0 ? (
+                  <p>
+                    Aun no tienes pedidos. Cuando completes una compra aparecera
+                    aqui.
+                  </p>
+                ) : (
+                  orders.map((order) => (
+                    <article className="profile-order" key={order.id}>
+                      <div className="profile-order-icon">
+                        <PackageCheck size={20} />
+                      </div>
+                      <div>
+                        <strong>#{order.id}</strong>
+                        <span>
+                          {new Intl.DateTimeFormat("es-PE", {
+                            dateStyle: "medium",
+                          }).format(new Date(order.createdAt))}
+                        </span>
+                      </div>
+                      <span
+                        className={`order-status ${order.status === "PENDING" ? "order-status--shipping" : ""}`}
+                      >
+                        {order.status === "PENDING"
+                          ? "Pendiente de pago"
+                          : order.status === "PAID"
+                            ? "Pagado"
+                            : "Cancelado"}
+                      </span>
+                      <strong>S/ {Number(order.total).toFixed(2)}</strong>
+                    </article>
+                  ))
+                )}
+              </div>
+            </section>
+            <section className="profile-favorites animated-card" id="favoritos">
+              <Heart size={22} />
+              <div>
+                <span className="section-kicker">Tus favoritos</span>
+                <h2>Aun no guardaste productos.</h2>
+                <p>Explora las colecciones y guarda lo que mas le guste.</p>
+              </div>
+              <Link to="/">
+                Explorar tienda <ArrowRight size={16} />
+              </Link>
+            </section>
           </div>
         </div>
       </main>
@@ -1097,9 +1712,13 @@ export function LegacyProfilePage() {
             </div>
             <span className="section-kicker">Mi espacio</span>
             <h1>Hola, {firstName}.</h1>
-            <p>Gestiona tu información, pedidos y favoritos desde un solo lugar.</p>
+            <p>
+              Gestiona tu información, pedidos y favoritos desde un solo lugar.
+            </p>
           </div>
-          {!user && <span className="profile-demo-badge">Vista de demostración</span>}
+          {!user && (
+            <span className="profile-demo-badge">Vista de demostración</span>
+          )}
         </div>
 
         <div className="profile-layout">
@@ -1107,12 +1726,25 @@ export function LegacyProfilePage() {
             <div className="profile-avatar">{initials}</div>
             <h2>{profile.name}</h2>
             <p>{profile.email}</p>
-            <span className="profile-role">{profile.role === "ADMIN" ? "Administrador" : "Cliente Triopi"}</span>
+            <span className="profile-role">
+              {profile.role === "ADMIN" ? "Administrador" : "Cliente Triopi"}
+            </span>
             <nav aria-label="Navegación de perfil" className="profile-nav">
-              <a className="profile-nav-item profile-nav-item--active" href="#mi-perfil"><UserRound size={18} /> Mi perfil</a>
-              <a className="profile-nav-item" href="#mis-pedidos"><PackageCheck size={18} /> Mis pedidos</a>
-              <a className="profile-nav-item" href="#favoritos"><Heart size={18} /> Favoritos</a>
-              <a className="profile-nav-item" href="#ajustes"><Settings size={18} /> Ajustes</a>
+              <a
+                className="profile-nav-item profile-nav-item--active"
+                href="#mi-perfil"
+              >
+                <UserRound size={18} /> Mi perfil
+              </a>
+              <a className="profile-nav-item" href="#mis-pedidos">
+                <PackageCheck size={18} /> Mis pedidos
+              </a>
+              <a className="profile-nav-item" href="#favoritos">
+                <Heart size={18} /> Favoritos
+              </a>
+              <a className="profile-nav-item" href="#ajustes">
+                <Settings size={18} /> Ajustes
+              </a>
             </nav>
             {user && (
               <button className="profile-logout" type="button" onClick={logout}>
@@ -1131,10 +1763,22 @@ export function LegacyProfilePage() {
                 <button type="button">Editar información</button>
               </div>
               <div className="profile-fields">
-                <label>Nombre completo<input readOnly value={profile.name} /></label>
-                <label>Correo electrónico<input readOnly value={profile.email} /></label>
-                <label>Teléfono<input placeholder="Agrega tu teléfono" readOnly /></label>
-                <label>Distrito<input placeholder="Agrega tu distrito" readOnly /></label>
+                <label>
+                  Nombre completo
+                  <input readOnly value={profile.name} />
+                </label>
+                <label>
+                  Correo electrónico
+                  <input readOnly value={profile.email} />
+                </label>
+                <label>
+                  Teléfono
+                  <input placeholder="Agrega tu teléfono" readOnly />
+                </label>
+                <label>
+                  Distrito
+                  <input placeholder="Agrega tu distrito" readOnly />
+                </label>
               </div>
             </section>
 
@@ -1149,9 +1793,18 @@ export function LegacyProfilePage() {
               <div className="profile-orders">
                 {profileOrders.map((order) => (
                   <article className="profile-order" key={order.id}>
-                    <div className="profile-order-icon"><PackageCheck size={20} /></div>
-                    <div><strong>{order.id}</strong><span>{order.date}</span></div>
-                    <span className={`order-status ${order.status === "En camino" ? "order-status--shipping" : ""}`}>{order.status}</span>
+                    <div className="profile-order-icon">
+                      <PackageCheck size={20} />
+                    </div>
+                    <div>
+                      <strong>{order.id}</strong>
+                      <span>{order.date}</span>
+                    </div>
+                    <span
+                      className={`order-status ${order.status === "En camino" ? "order-status--shipping" : ""}`}
+                    >
+                      {order.status}
+                    </span>
                     <strong>{order.total}</strong>
                   </article>
                 ))}
@@ -1160,8 +1813,14 @@ export function LegacyProfilePage() {
 
             <section className="profile-favorites animated-card" id="favoritos">
               <Heart size={22} />
-              <div><span className="section-kicker">Tus favoritos</span><h2>Aún no guardaste productos.</h2><p>Explora las colecciones y guarda lo que más le guste.</p></div>
-              <Link to="/collares">Explorar tienda <ArrowRight size={16} /></Link>
+              <div>
+                <span className="section-kicker">Tus favoritos</span>
+                <h2>Aún no guardaste productos.</h2>
+                <p>Explora las colecciones y guarda lo que más le guste.</p>
+              </div>
+              <Link to="/collares">
+                Explorar tienda <ArrowRight size={16} />
+              </Link>
             </section>
           </div>
         </div>
@@ -1203,7 +1862,11 @@ const emptyProductForm = (categoryId = ""): ProductForm => ({
   active: true,
 });
 
-const emptyCategoryForm: CategoryForm = { name: "", description: "", active: true };
+const emptyCategoryForm: CategoryForm = {
+  name: "",
+  description: "",
+  active: true,
+};
 
 function AdminPage() {
   const { logout, user } = useAuth();
@@ -1217,7 +1880,9 @@ function AdminPage() {
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
   const [categoryForm, setCategoryForm] = useState<CategoryForm | null>(null);
-  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
+    null,
+  );
   const [isSavingCategory, setIsSavingCategory] = useState(false);
 
   useEffect(() => {
@@ -1232,8 +1897,10 @@ function AdminPage() {
       apiClient.get<ApiOrder[]>("/admin/orders"),
     ])
       .then(([productsResponse, categoriesResponse, ordersResponse]) => {
-        setProducts(productsResponse.data);
-        setCategories(categoriesResponse.data);
+        setProducts(productsResponse.data.filter((product) => product.active));
+        setCategories(
+          categoriesResponse.data.filter((category) => category.active),
+        );
         setOrders(ordersResponse.data);
       })
       .catch(() => setError("No pudimos cargar la informacion administrativa."))
@@ -1244,12 +1911,20 @@ function AdminPage() {
     return (
       <div className="site-page admin-page">
         <main className="admin-access section-shell">
-          <Link aria-label="Volver al inicio" className="admin-back" to="/"><ArrowLeft size={19} /></Link>
+          <Link aria-label="Volver al inicio" className="admin-back" to="/">
+            <ArrowLeft size={19} />
+          </Link>
           <ShieldCheck size={36} />
           <span className="section-kicker">Area protegida</span>
           <h1>Panel administrativo</h1>
-          <p>Esta seccion solo esta disponible para cuentas con rol administrador.</p>
-          <Link className="primary-button" to={user ? "/perfil" : "/acceso"}>{user ? "Volver a mi perfil" : "Iniciar sesion"} <ArrowRight size={17} /></Link>
+          <p>
+            Esta seccion solo esta disponible para cuentas con rol
+            administrador.
+          </p>
+          <Link className="primary-button" to={user ? "/perfil" : "/acceso"}>
+            {user ? "Volver a mi perfil" : "Iniciar sesion"}{" "}
+            <ArrowRight size={17} />
+          </Link>
         </main>
       </div>
     );
@@ -1257,8 +1932,13 @@ function AdminPage() {
 
   const paidOrders = orders.filter((order) => order.status === "PAID");
   const pendingOrders = orders.filter((order) => order.status === "PENDING");
-  const revenue = paidOrders.reduce((total, order) => total + Number(order.total), 0);
-  const lowStock = products.filter((product) => product.stock <= 5 && product.active);
+  const revenue = paidOrders.reduce(
+    (total, order) => total + Number(order.total),
+    0,
+  );
+  const lowStock = products.filter(
+    (product) => product.stock <= 5 && product.active,
+  );
   const handleLogout = () => {
     logout();
     navigate("/", { replace: true });
@@ -1267,7 +1947,11 @@ function AdminPage() {
   const openNewProduct = () => {
     const firstActiveCategory = categories.find((category) => category.active);
     setEditingProductId(null);
-    setProductForm(emptyProductForm(firstActiveCategory ? String(firstActiveCategory.id) : ""));
+    setProductForm(
+      emptyProductForm(
+        firstActiveCategory ? String(firstActiveCategory.id) : "",
+      ),
+    );
   };
 
   const openEditProduct = (product: AdminProduct) => {
@@ -1301,43 +1985,41 @@ function AdminPage() {
 
     try {
       const response = editingProductId
-        ? await apiClient.put<AdminProduct>(`/admin/products/${editingProductId}`, payload)
+        ? await apiClient.put<AdminProduct>(
+            `/admin/products/${editingProductId}`,
+            payload,
+          )
         : await apiClient.post<AdminProduct>("/admin/products", payload);
 
       setProducts((current) => {
-        const withoutUpdated = current.filter((product) => product.id !== response.data.id);
-        return [...withoutUpdated, response.data].sort((first, second) => first.name.localeCompare(second.name));
+        const withoutUpdated = current.filter(
+          (product) => product.id !== response.data.id,
+        );
+        return [...withoutUpdated, response.data].sort((first, second) =>
+          first.name.localeCompare(second.name),
+        );
       });
       setProductForm(null);
       setEditingProductId(null);
     } catch {
-      setError("No pudimos guardar el producto. Revisa los campos e intenta otra vez.");
+      setError(
+        "No pudimos guardar el producto. Revisa los campos e intenta otra vez.",
+      );
     } finally {
       setIsSavingProduct(false);
     }
   };
 
-  const changeProductStatus = async (product: AdminProduct) => {
+  const deleteProduct = async (product: AdminProduct) => {
+    if (!window.confirm(`¿Eliminar "${product.name}" del catálogo?`)) return;
     setError("");
     try {
-      if (product.active) {
-        await apiClient.delete(`/admin/products/${product.id}`);
-        setProducts((current) => current.map((item) => item.id === product.id ? { ...item, active: false } : item));
-        return;
-      }
-
-      const response = await apiClient.put<AdminProduct>(`/admin/products/${product.id}`, {
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        stock: product.stock,
-        imageUrl: product.imageUrl,
-        categoryId: product.categoryId,
-        active: true,
-      });
-      setProducts((current) => current.map((item) => item.id === product.id ? response.data : item));
+      await apiClient.delete(`/admin/products/${product.id}`);
+      setProducts((current) =>
+        current.filter((item) => item.id !== product.id),
+      );
     } catch {
-      setError("No pudimos actualizar el estado del producto.");
+      setError("No pudimos eliminar el producto.");
     }
   };
 
@@ -1348,7 +2030,11 @@ function AdminPage() {
 
   const openEditCategory = (category: AdminCategory) => {
     setEditingCategoryId(category.id);
-    setCategoryForm({ name: category.name, description: category.description ?? "", active: category.active });
+    setCategoryForm({
+      name: category.name,
+      description: category.description ?? "",
+      active: category.active,
+    });
   };
 
   const saveCategory = async (event: FormEvent<HTMLFormElement>) => {
@@ -1357,40 +2043,60 @@ function AdminPage() {
     setError("");
     setIsSavingCategory(true);
     try {
-      const payload = { ...categoryForm, name: categoryForm.name.trim(), description: categoryForm.description.trim() || null };
+      const payload = {
+        ...categoryForm,
+        name: categoryForm.name.trim(),
+        description: categoryForm.description.trim() || null,
+      };
       const response = editingCategoryId
-        ? await apiClient.put<AdminCategory>(`/admin/categories/${editingCategoryId}`, payload)
+        ? await apiClient.put<AdminCategory>(
+            `/admin/categories/${editingCategoryId}`,
+            payload,
+          )
         : await apiClient.post<AdminCategory>("/admin/categories", payload);
-      setCategories((current) => [...current.filter((category) => category.id !== response.data.id), response.data].sort((first, second) => first.name.localeCompare(second.name)));
+      setCategories((current) =>
+        [
+          ...current.filter((category) => category.id !== response.data.id),
+          response.data,
+        ].sort((first, second) => first.name.localeCompare(second.name)),
+      );
       setCategoryForm(null);
       setEditingCategoryId(null);
     } catch {
-      setError("No pudimos guardar la categoria. Revisa los campos e intenta otra vez.");
+      setError(
+        "No pudimos guardar la categoria. Revisa los campos e intenta otra vez.",
+      );
     } finally {
       setIsSavingCategory(false);
     }
   };
 
-  const changeCategoryStatus = async (category: AdminCategory) => {
+  const deleteCategory = async (category: AdminCategory) => {
+    if (!window.confirm(`¿Eliminar la categoría "${category.name}"?`)) return;
     setError("");
     try {
-      if (category.active) {
-        await apiClient.put(`/admin/categories/${category.id}/deactivate`);
-        setCategories((current) => current.map((item) => item.id === category.id ? { ...item, active: false } : item));
-      } else {
-        const response = await apiClient.put<AdminCategory>(`/admin/categories/${category.id}`, { name: category.name, description: category.description, active: true });
-        setCategories((current) => current.map((item) => item.id === category.id ? response.data : item));
-      }
+      await apiClient.delete(`/admin/categories/${category.id}`);
+      setCategories((current) =>
+        current.filter((item) => item.id !== category.id),
+      );
     } catch {
-      setError("No pudimos actualizar el estado de la categoria.");
+      setError("No pudimos eliminar la categoría.");
     }
   };
 
-  const changeOrderStatus = async (order: ApiOrder, status: "CANCELLED" | "SHIPPED" | "DELIVERED") => {
+  const changeOrderStatus = async (
+    order: ApiOrder,
+    status: "CANCELLED" | "SHIPPED" | "DELIVERED",
+  ) => {
     setError("");
     try {
-      const response = await apiClient.put<ApiOrder>(`/admin/orders/${order.id}/status`, { status });
-      setOrders((current) => current.map((item) => item.id === order.id ? response.data : item));
+      const response = await apiClient.put<ApiOrder>(
+        `/admin/orders/${order.id}/status`,
+        { status },
+      );
+      setOrders((current) =>
+        current.map((item) => (item.id === order.id ? response.data : item)),
+      );
     } catch {
       setError("No pudimos actualizar el estado del pedido.");
     }
@@ -1399,37 +2105,530 @@ function AdminPage() {
   return (
     <div className="site-page admin-page">
       <main className="admin-main section-shell">
-        <Link aria-label="Volver al inicio" className="admin-back" to="/"><ArrowLeft size={19} /></Link>
+        <Link aria-label="Volver al inicio" className="admin-back" to="/">
+          <ArrowLeft size={19} />
+        </Link>
         <div className="admin-hero">
-          <div><span className="section-kicker">Centro de control</span><h1>Hola, {user.name.split(" ")[0]}.</h1><p>Supervisa la operacion de Triopi Petshop desde un solo lugar.</p></div>
-          <div className="admin-hero-actions"><span className="admin-role"><ShieldCheck size={16} /> Administrador</span><button className="admin-logout" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesion</button></div>
+          <div>
+            <span className="section-kicker">Centro de control</span>
+            <h1>Hola, {user.name.split(" ")[0]}.</h1>
+            <p>Supervisa la operacion de Triopi Petshop desde un solo lugar.</p>
+          </div>
+          <div className="admin-hero-actions">
+            <span className="admin-role">
+              <ShieldCheck size={16} /> Administrador
+            </span>
+            <button
+              className="admin-logout"
+              type="button"
+              onClick={handleLogout}
+            >
+              <LogOut size={16} /> Cerrar sesion
+            </button>
+          </div>
         </div>
 
         {error && <p className="auth-error">{error}</p>}
-        {isLoading ? <section className="admin-loading">Cargando panel administrativo...</section> : <>
-          <section className="admin-metrics" aria-label="Resumen administrativo">
-            <article><span>Ventas confirmadas</span><strong>S/ {revenue.toFixed(2)}</strong><small>{paidOrders.length} pedidos pagados</small></article>
-            <article><span>Pedidos pendientes</span><strong>{pendingOrders.length}</strong><small>Requieren seguimiento</small></article>
-            <article><span>Productos activos</span><strong>{products.filter((product) => product.active).length}</strong><small>{lowStock.length} con stock bajo</small></article>
-            <article><span>Categorias</span><strong>{categories.filter((category) => category.active).length}</strong><small>{categories.length} en total</small></article>
+        {isLoading ? (
+          <section className="admin-loading">
+            Cargando panel administrativo...
           </section>
+        ) : (
+          <>
+            <section
+              className="admin-metrics"
+              aria-label="Resumen administrativo"
+            >
+              <article>
+                <span>Ventas confirmadas</span>
+                <strong>S/ {revenue.toFixed(2)}</strong>
+                <small>{paidOrders.length} pedidos pagados</small>
+              </article>
+              <article>
+                <span>Pedidos pendientes</span>
+                <strong>{pendingOrders.length}</strong>
+                <small>Requieren seguimiento</small>
+              </article>
+              <article>
+                <span>Productos activos</span>
+                <strong>
+                  {products.filter((product) => product.active).length}
+                </strong>
+                <small>{lowStock.length} con stock bajo</small>
+              </article>
+              <article>
+                <span>Categorias</span>
+                <strong>
+                  {categories.filter((category) => category.active).length}
+                </strong>
+                <small>{categories.length} en total</small>
+              </article>
+            </section>
 
-          <section className="admin-grid">
-            <article className="admin-card admin-card--wide">
-              <div className="admin-card-heading"><div><span className="section-kicker">Inventario</span><h2>Productos</h2></div><div className="admin-product-actions"><span><ShoppingBag size={18} /> {products.length}</span><button className="admin-add-button" type="button" onClick={openNewProduct}><Plus size={16} /> Nuevo producto</button></div></div>
-              <div className="admin-table admin-table--products" role="table"><div className="admin-table-row admin-table-row--head" role="row"><span>Producto</span><span>Categoria</span><span>Stock</span><span>Estado</span><span>Acciones</span></div>{products.map((product) => <div className="admin-table-row" key={product.id} role="row"><div className="admin-product-name">{product.imageUrl ? <img alt="" src={product.imageUrl} /> : <ShoppingBag size={16} />}<strong>{product.name}</strong></div><span>{product.categoryName}</span><span className={product.stock <= 5 ? "admin-stock-low" : ""}>{product.stock} unidades</span><span className={product.active ? "admin-status admin-status--active" : "admin-status"}>{product.active ? "Activo" : "Inactivo"}</span><div className="admin-row-actions"><button type="button" onClick={() => openEditProduct(product)}>Editar</button><button type="button" onClick={() => changeProductStatus(product)}>{product.active ? "Desactivar" : "Activar"}</button></div></div>)}</div>
-              <p className="admin-card-note">Los cambios se guardan en el catalogo real y se reflejan para los clientes.</p>
-            </article>
+            <section className="admin-grid">
+              <article className="admin-card admin-card--wide">
+                <div className="admin-card-heading">
+                  <div>
+                    <span className="section-kicker">Inventario</span>
+                    <h2>Productos</h2>
+                  </div>
+                  <div className="admin-product-actions">
+                    <span>
+                      <ShoppingBag size={18} /> {products.length}
+                    </span>
+                    <button
+                      className="admin-add-button"
+                      type="button"
+                      onClick={openNewProduct}
+                    >
+                      <Plus size={16} /> Nuevo producto
+                    </button>
+                  </div>
+                </div>
+                <div className="admin-table admin-table--products" role="table">
+                  <div
+                    className="admin-table-row admin-table-row--head"
+                    role="row"
+                  >
+                    <span>Producto</span>
+                    <span>Categoria</span>
+                    <span>Stock</span>
+                    <span>Estado</span>
+                    <span>Acciones</span>
+                  </div>
+                  {products.map((product) => (
+                    <div
+                      className="admin-table-row"
+                      key={product.id}
+                      role="row"
+                    >
+                      <div className="admin-product-name">
+                        {product.imageUrl ? (
+                          <img alt="" src={product.imageUrl} />
+                        ) : (
+                          <ShoppingBag size={16} />
+                        )}
+                        <strong>{product.name}</strong>
+                      </div>
+                      <span>{product.categoryName}</span>
+                      <span
+                        className={product.stock <= 5 ? "admin-stock-low" : ""}
+                      >
+                        {product.stock} unidades
+                      </span>
+                      <span className="admin-status admin-status--active">
+                        Activo
+                      </span>
+                      <div className="admin-row-actions">
+                        <button
+                          type="button"
+                          onClick={() => openEditProduct(product)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteProduct(product)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="admin-card-note">
+                  Los cambios se guardan en el catalogo real y se reflejan para
+                  los clientes.
+                </p>
+              </article>
 
-            <article className="admin-card"><div className="admin-card-heading"><div><span className="section-kicker">Catalogo</span><h2>Categorias</h2></div><button className="admin-add-button" type="button" onClick={openNewCategory}><Plus size={16} /> Nueva</button></div><div className="admin-category-list">{categories.map((category) => <div key={category.id}><span>{category.name}</span><div className="admin-row-actions"><small className={category.active ? "admin-status admin-status--active" : "admin-status"}>{category.active ? "Activa" : "Inactiva"}</small><button type="button" onClick={() => openEditCategory(category)}>Editar</button><button type="button" onClick={() => changeCategoryStatus(category)}>{category.active ? "Desactivar" : "Activar"}</button></div></div>)}</div></article>
+              <article className="admin-card">
+                <div className="admin-card-heading">
+                  <div>
+                    <span className="section-kicker">Catalogo</span>
+                    <h2>Categorias</h2>
+                  </div>
+                  <button
+                    className="admin-add-button"
+                    type="button"
+                    onClick={openNewCategory}
+                  >
+                    <Plus size={16} /> Nueva
+                  </button>
+                </div>
+                <div className="admin-category-list">
+                  {categories.map((category) => (
+                    <div key={category.id}>
+                      <span>{category.name}</span>
+                      <div className="admin-row-actions">
+                        <small className="admin-status admin-status--active">
+                          Activa
+                        </small>
+                        <button
+                          type="button"
+                          onClick={() => openEditCategory(category)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteCategory(category)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </article>
 
-            <article className="admin-card admin-card--wide"><div className="admin-card-heading"><div><span className="section-kicker">Operacion</span><h2>Pedidos recientes</h2></div><PackageCheck size={20} /></div><div className="admin-orders">{orders.length === 0 ? <p>Aun no hay pedidos registrados.</p> : orders.map((order) => { const status = order.status as string; return <div key={order.id}><div><strong>Pedido #{order.id}</strong><span>{order.userEmail ?? "Cliente"} · {new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(new Date(order.createdAt))}</span>{order.items && <small>{order.items.map((item) => `${item.quantity}× ${item.productName}`).join(", ")}</small>}</div><span className={`admin-status ${status === "PAID" || status === "DELIVERED" ? "admin-status--active" : status === "PENDING" ? "admin-status--pending" : ""}`}>{status === "PENDING" ? "Pendiente" : status === "PAID" ? "Pagado" : status === "SHIPPED" ? "Enviado" : status === "DELIVERED" ? "Entregado" : "Cancelado"}</span><strong>S/ {Number(order.total).toFixed(2)}</strong>{status !== "CANCELLED" && status !== "DELIVERED" && <select aria-label={`Estado del pedido ${order.id}`} defaultValue="" onChange={(event) => { const nextStatus = event.target.value as "CANCELLED" | "SHIPPED" | "DELIVERED"; if (nextStatus) changeOrderStatus(order, nextStatus); }}><option value="">Cambiar estado</option>{status === "PENDING" && <option value="CANCELLED">Cancelar</option>}{status === "PAID" && <option value="SHIPPED">Marcar enviado</option>}{status === "SHIPPED" && <option value="DELIVERED">Marcar entregado</option>}</select>}</div>; })}</div></article>
-          </section>
-        </>}
+              <article className="admin-card admin-card--wide">
+                <div className="admin-card-heading">
+                  <div>
+                    <span className="section-kicker">Operacion</span>
+                    <h2>Pedidos recientes</h2>
+                  </div>
+                  <PackageCheck size={20} />
+                </div>
+                <div className="admin-orders">
+                  {orders.length === 0 ? (
+                    <p>Aun no hay pedidos registrados.</p>
+                  ) : (
+                    orders.map((order) => {
+                      const status = order.status as string;
+                      return (
+                        <div key={order.id}>
+                          <div>
+                            <strong>Pedido #{order.id}</strong>
+                            <span>
+                              {order.userEmail ?? "Cliente"} ·{" "}
+                              {new Intl.DateTimeFormat("es-PE", {
+                                dateStyle: "medium",
+                              }).format(new Date(order.createdAt))}
+                            </span>
+                            {order.items && (
+                              <small>
+                                {order.items
+                                  .map(
+                                    (item) =>
+                                      `${item.quantity}× ${item.productName}`,
+                                  )
+                                  .join(", ")}
+                              </small>
+                            )}
+                          </div>
+                          <span
+                            className={`admin-status ${status === "PAID" || status === "DELIVERED" ? "admin-status--active" : status === "PENDING" ? "admin-status--pending" : ""}`}
+                          >
+                            {status === "PENDING"
+                              ? "Pendiente"
+                              : status === "PAID"
+                                ? "Pagado"
+                                : status === "SHIPPED"
+                                  ? "Enviado"
+                                  : status === "DELIVERED"
+                                    ? "Entregado"
+                                    : "Cancelado"}
+                          </span>
+                          <strong>S/ {Number(order.total).toFixed(2)}</strong>
+                          {status !== "CANCELLED" && status !== "DELIVERED" && (
+                            <select
+                              aria-label={`Estado del pedido ${order.id}`}
+                              defaultValue=""
+                              onChange={(event) => {
+                                const nextStatus = event.target.value as
+                                  | "CANCELLED"
+                                  | "SHIPPED"
+                                  | "DELIVERED";
+                                if (nextStatus)
+                                  changeOrderStatus(order, nextStatus);
+                              }}
+                            >
+                              <option value="">Cambiar estado</option>
+                              {status === "PENDING" && (
+                                <option value="CANCELLED">Cancelar</option>
+                              )}
+                              {status === "PAID" && (
+                                <option value="SHIPPED">Marcar enviado</option>
+                              )}
+                              {status === "SHIPPED" && (
+                                <option value="DELIVERED">
+                                  Marcar entregado
+                                </option>
+                              )}
+                            </select>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </article>
+            </section>
+          </>
+        )}
       </main>
-      {productForm && <div className="product-modal-backdrop" role="presentation"><section aria-label={editingProductId ? "Editar producto" : "Nuevo producto"} className="product-modal" role="dialog"><div className="product-modal-heading"><div><span className="section-kicker">{editingProductId ? "Editar catalogo" : "Nuevo producto"}</span><h2>{editingProductId ? "Actualizar producto" : "Agregar producto"}</h2></div><button aria-label="Cerrar formulario" className="product-modal-close" type="button" onClick={() => setProductForm(null)}><X size={19} /></button></div><form className="product-form" onSubmit={saveProduct}><label>Nombre<input required value={productForm.name} onChange={(event) => setProductForm({ ...productForm, name: event.target.value })} /></label><label>Descripcion<textarea maxLength={600} value={productForm.description} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} /></label><div className="product-form-grid"><label>Precio (S/)<input min="0.01" required step="0.01" type="number" value={productForm.price} onChange={(event) => setProductForm({ ...productForm, price: event.target.value })} /></label><label>Stock<input min="0" required type="number" value={productForm.stock} onChange={(event) => setProductForm({ ...productForm, stock: event.target.value })} /></label></div><label>Categoria<select required value={productForm.categoryId} onChange={(event) => setProductForm({ ...productForm, categoryId: event.target.value })}><option value="">Selecciona una categoria</option>{categories.filter((category) => category.active).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>URL de imagen<input inputMode="url" placeholder="https://..." type="url" value={productForm.imageUrl} onChange={(event) => setProductForm({ ...productForm, imageUrl: event.target.value })} /></label>{productForm.imageUrl && <img alt="Vista previa del producto" className="product-image-preview" src={productForm.imageUrl} />}{editingProductId && <label className="product-active-toggle"><input checked={productForm.active} type="checkbox" onChange={(event) => setProductForm({ ...productForm, active: event.target.checked })} /> Producto activo</label>}<div className="product-form-actions"><button type="button" onClick={() => setProductForm(null)}>Cancelar</button><button className="admin-add-button" disabled={isSavingProduct} type="submit">{isSavingProduct ? "Guardando..." : "Guardar producto"}</button></div></form></section></div>}
-      {productForm && <div className="product-modal-backdrop" role="presentation"><section aria-label={editingProductId ? "Editar producto" : "Nuevo producto"} className="product-modal" role="dialog"><div className="product-modal-heading"><div><span className="section-kicker">{editingProductId ? "Editar catalogo" : "Nuevo producto"}</span><h2>{editingProductId ? "Actualizar producto" : "Agregar producto"}</h2></div><button aria-label="Cerrar formulario" className="product-modal-close" type="button" onClick={() => setProductForm(null)}><X size={19} /></button></div><form className="product-form" onSubmit={saveProduct}><label>Nombre<input required value={productForm.name} onChange={(event) => setProductForm({ ...productForm, name: event.target.value })} /></label><label>Descripcion<textarea maxLength={600} value={productForm.description} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} /></label><div className="product-form-grid"><label>Precio (S/)<input min="0.01" required step="0.01" type="number" value={productForm.price} onChange={(event) => setProductForm({ ...productForm, price: event.target.value })} /></label><label>Stock<input min="0" required type="number" value={productForm.stock} onChange={(event) => setProductForm({ ...productForm, stock: event.target.value })} /></label></div><label>Categoria<select required value={productForm.categoryId} onChange={(event) => setProductForm({ ...productForm, categoryId: event.target.value })}><option value="">Selecciona una categoria</option>{categories.filter((category) => category.active).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>Subir imagen<input accept="image/jpeg,image/png,image/webp" type="file" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; setIsSavingProduct(true); try { const formData = new FormData(); formData.append("file", file); const upload = await apiClient.post<{ imageUrl: string }>("/admin/uploads/products", formData, { headers: { "Content-Type": "multipart/form-data" } }); setProductForm({ ...productForm, imageUrl: upload.data.imageUrl }); } catch { setError("No pudimos subir la imagen. Verifica la configuracion de Storage."); } finally { setIsSavingProduct(false); } }} /></label><label>URL de imagen<input inputMode="url" placeholder="https://..." type="url" value={productForm.imageUrl} onChange={(event) => setProductForm({ ...productForm, imageUrl: event.target.value })} /></label>{productForm.imageUrl && <img alt="Vista previa del producto" className="product-image-preview" src={productForm.imageUrl} />}{editingProductId && <label className="product-active-toggle"><input checked={productForm.active} type="checkbox" onChange={(event) => setProductForm({ ...productForm, active: event.target.checked })} /> Producto activo</label>}<div className="product-form-actions"><button type="button" onClick={() => setProductForm(null)}>Cancelar</button><button className="admin-add-button" disabled={isSavingProduct} type="submit">{isSavingProduct ? "Guardando..." : "Guardar producto"}</button></div></form></section></div>}
-      {categoryForm && <div className="product-modal-backdrop" role="presentation"><section aria-label={editingCategoryId ? "Editar categoria" : "Nueva categoria"} className="product-modal" role="dialog"><div className="product-modal-heading"><div><span className="section-kicker">Catalogo</span><h2>{editingCategoryId ? "Actualizar categoria" : "Agregar categoria"}</h2></div><button aria-label="Cerrar formulario" className="product-modal-close" type="button" onClick={() => setCategoryForm(null)}><X size={19} /></button></div><form className="product-form" onSubmit={saveCategory}><label>Nombre<input required maxLength={80} value={categoryForm.name} onChange={(event) => setCategoryForm({ ...categoryForm, name: event.target.value })} /></label><label>Descripcion<textarea maxLength={300} value={categoryForm.description} onChange={(event) => setCategoryForm({ ...categoryForm, description: event.target.value })} /></label>{editingCategoryId && <label className="product-active-toggle"><input checked={categoryForm.active} type="checkbox" onChange={(event) => setCategoryForm({ ...categoryForm, active: event.target.checked })} /> Categoria activa</label>}<div className="product-form-actions"><button type="button" onClick={() => setCategoryForm(null)}>Cancelar</button><button className="admin-add-button" disabled={isSavingCategory} type="submit">{isSavingCategory ? "Guardando..." : "Guardar categoria"}</button></div></form></section></div>}
+      {productForm && (
+        <div className="product-modal-backdrop" role="presentation">
+          <section
+            aria-label={editingProductId ? "Editar producto" : "Nuevo producto"}
+            className="product-modal"
+            role="dialog"
+          >
+            <div className="product-modal-heading">
+              <div>
+                <span className="section-kicker">
+                  {editingProductId ? "Editar catalogo" : "Nuevo producto"}
+                </span>
+                <h2>
+                  {editingProductId
+                    ? "Actualizar producto"
+                    : "Agregar producto"}
+                </h2>
+              </div>
+              <button
+                aria-label="Cerrar formulario"
+                className="product-modal-close"
+                type="button"
+                onClick={() => setProductForm(null)}
+              >
+                <X size={19} />
+              </button>
+            </div>
+            <form className="product-form" onSubmit={saveProduct}>
+              <label>
+                Nombre
+                <input
+                  required
+                  value={productForm.name}
+                  onChange={(event) =>
+                    setProductForm({ ...productForm, name: event.target.value })
+                  }
+                />
+              </label>
+              <label>
+                Descripcion
+                <textarea
+                  maxLength={600}
+                  value={productForm.description}
+                  onChange={(event) =>
+                    setProductForm({
+                      ...productForm,
+                      description: event.target.value,
+                    })
+                  }
+                />
+              </label>
+              <div className="product-form-grid">
+                <label>
+                  Precio (S/)
+                  <input
+                    min="0.01"
+                    required
+                    step="0.01"
+                    type="number"
+                    value={productForm.price}
+                    onChange={(event) =>
+                      setProductForm({
+                        ...productForm,
+                        price: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Stock
+                  <input
+                    min="0"
+                    required
+                    type="number"
+                    value={productForm.stock}
+                    onChange={(event) =>
+                      setProductForm({
+                        ...productForm,
+                        stock: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+              </div>
+              <label>
+                Categoria
+                <select
+                  required
+                  value={productForm.categoryId}
+                  onChange={(event) =>
+                    setProductForm({
+                      ...productForm,
+                      categoryId: event.target.value,
+                    })
+                  }
+                >
+                  <option value="">Selecciona una categoria</option>
+                  {categories
+                    .filter((category) => category.active)
+                    .map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              <label>
+                Subir imagen
+                <input
+                  accept="image/jpeg,image/png,image/webp"
+                  type="file"
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    setIsSavingProduct(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      const upload = await apiClient.post<{ imageUrl: string }>(
+                        "/admin/uploads/products",
+                        formData,
+                        { headers: { "Content-Type": "multipart/form-data" } },
+                      );
+                      setProductForm({
+                        ...productForm,
+                        imageUrl: upload.data.imageUrl,
+                      });
+                    } catch {
+                      setError(
+                        "No pudimos subir la imagen. Verifica la configuracion de Storage.",
+                      );
+                    } finally {
+                      setIsSavingProduct(false);
+                    }
+                  }}
+                />
+              </label>
+              {productForm.imageUrl && (
+                <img
+                  alt="Vista previa del producto"
+                  className="product-image-preview"
+                  src={productForm.imageUrl}
+                />
+              )}
+              {editingProductId && (
+                <label className="product-active-toggle">
+                  <input
+                    checked={productForm.active}
+                    type="checkbox"
+                    onChange={(event) =>
+                      setProductForm({
+                        ...productForm,
+                        active: event.target.checked,
+                      })
+                    }
+                  />{" "}
+                  Producto activo
+                </label>
+              )}
+              <div className="product-form-actions">
+                <button type="button" onClick={() => setProductForm(null)}>
+                  Cancelar
+                </button>
+                <button
+                  className="admin-add-button"
+                  disabled={isSavingProduct}
+                  type="submit"
+                >
+                  {isSavingProduct ? "Guardando..." : "Guardar producto"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+      {categoryForm && (
+        <div className="product-modal-backdrop" role="presentation">
+          <section
+            aria-label={
+              editingCategoryId ? "Editar categoria" : "Nueva categoria"
+            }
+            className="product-modal"
+            role="dialog"
+          >
+            <div className="product-modal-heading">
+              <div>
+                <span className="section-kicker">Catalogo</span>
+                <h2>
+                  {editingCategoryId
+                    ? "Actualizar categoria"
+                    : "Agregar categoria"}
+                </h2>
+              </div>
+              <button
+                aria-label="Cerrar formulario"
+                className="product-modal-close"
+                type="button"
+                onClick={() => setCategoryForm(null)}
+              >
+                <X size={19} />
+              </button>
+            </div>
+            <form className="product-form" onSubmit={saveCategory}>
+              <label>
+                Nombre
+                <input
+                  required
+                  maxLength={80}
+                  value={categoryForm.name}
+                  onChange={(event) =>
+                    setCategoryForm({
+                      ...categoryForm,
+                      name: event.target.value,
+                    })
+                  }
+                />
+              </label>
+              <label>
+                Descripcion
+                <textarea
+                  maxLength={300}
+                  value={categoryForm.description}
+                  onChange={(event) =>
+                    setCategoryForm({
+                      ...categoryForm,
+                      description: event.target.value,
+                    })
+                  }
+                />
+              </label>
+              {editingCategoryId && (
+                <label className="product-active-toggle">
+                  <input
+                    checked={categoryForm.active}
+                    type="checkbox"
+                    onChange={(event) =>
+                      setCategoryForm({
+                        ...categoryForm,
+                        active: event.target.checked,
+                      })
+                    }
+                  />{" "}
+                  Categoria activa
+                </label>
+              )}
+              <div className="product-form-actions">
+                <button type="button" onClick={() => setCategoryForm(null)}>
+                  Cancelar
+                </button>
+                <button
+                  className="admin-add-button"
+                  disabled={isSavingCategory}
+                  type="submit"
+                >
+                  {isSavingCategory ? "Guardando..." : "Guardar categoria"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
@@ -1447,13 +2646,62 @@ function CustomerRoute({ children }: { children: ReactNode }) {
 function App() {
   return (
     <Routes>
-      <Route element={<CustomerRoute><HomePage /></CustomerRoute>} path="/" />
-      <Route element={<CustomerRoute><CollarsPage /></CustomerRoute>} path="/collares" />
-      <Route element={<CustomerRoute><ToysPage /></CustomerRoute>} path="/juguetes" />
-      <Route element={<CustomerRoute><ClothingPage /></CustomerRoute>} path="/ropa" />
-      <Route element={<CustomerRoute><ProfilePage /></CustomerRoute>} path="/perfil" />
-      <Route element={<CustomerRoute><CartPage /></CustomerRoute>} path="/carrito" />
-      <Route element={<CustomerRoute><AuthPage /></CustomerRoute>} path="/acceso" />
+      <Route
+        element={
+          <CustomerRoute>
+            <HomePage />
+          </CustomerRoute>
+        }
+        path="/"
+      />
+      <Route
+        element={
+          <CustomerRoute>
+            <CollarsPage />
+          </CustomerRoute>
+        }
+        path="/collares"
+      />
+      <Route
+        element={
+          <CustomerRoute>
+            <ToysPage />
+          </CustomerRoute>
+        }
+        path="/juguetes"
+      />
+      <Route
+        element={
+          <CustomerRoute>
+            <ClothingPage />
+          </CustomerRoute>
+        }
+        path="/ropa"
+      />
+      <Route
+        element={
+          <CustomerRoute>
+            <ProfilePage />
+          </CustomerRoute>
+        }
+        path="/perfil"
+      />
+      <Route
+        element={
+          <CustomerRoute>
+            <CartPage />
+          </CustomerRoute>
+        }
+        path="/carrito"
+      />
+      <Route
+        element={
+          <CustomerRoute>
+            <AuthPage />
+          </CustomerRoute>
+        }
+        path="/acceso"
+      />
       <Route element={<AdminPage />} path="/administracion" />
     </Routes>
   );

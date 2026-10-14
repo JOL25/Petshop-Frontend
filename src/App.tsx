@@ -42,9 +42,11 @@ type ApiProduct = {
 
 type ApiOrder = {
   id: number;
+  userEmail?: string;
   status: "PENDING" | "PAID" | "CANCELLED";
   total: number;
   createdAt: string;
+  items?: { id: number; productName: string; quantity: number; subtotal: number }[];
 };
 
 type ApiProfile = {
@@ -1189,6 +1191,8 @@ type ProductForm = {
   active: boolean;
 };
 
+type CategoryForm = { name: string; description: string; active: boolean };
+
 const emptyProductForm = (categoryId = ""): ProductForm => ({
   name: "",
   description: "",
@@ -1198,6 +1202,8 @@ const emptyProductForm = (categoryId = ""): ProductForm => ({
   categoryId,
   active: true,
 });
+
+const emptyCategoryForm: CategoryForm = { name: "", description: "", active: true };
 
 function AdminPage() {
   const { logout, user } = useAuth();
@@ -1210,6 +1216,9 @@ function AdminPage() {
   const [productForm, setProductForm] = useState<ProductForm | null>(null);
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
+  const [categoryForm, setCategoryForm] = useState<CategoryForm | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
 
   useEffect(() => {
     if (user?.role !== "ADMIN") {
@@ -1332,6 +1341,61 @@ function AdminPage() {
     }
   };
 
+  const openNewCategory = () => {
+    setEditingCategoryId(null);
+    setCategoryForm(emptyCategoryForm);
+  };
+
+  const openEditCategory = (category: AdminCategory) => {
+    setEditingCategoryId(category.id);
+    setCategoryForm({ name: category.name, description: category.description ?? "", active: category.active });
+  };
+
+  const saveCategory = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!categoryForm) return;
+    setError("");
+    setIsSavingCategory(true);
+    try {
+      const payload = { ...categoryForm, name: categoryForm.name.trim(), description: categoryForm.description.trim() || null };
+      const response = editingCategoryId
+        ? await apiClient.put<AdminCategory>(`/admin/categories/${editingCategoryId}`, payload)
+        : await apiClient.post<AdminCategory>("/admin/categories", payload);
+      setCategories((current) => [...current.filter((category) => category.id !== response.data.id), response.data].sort((first, second) => first.name.localeCompare(second.name)));
+      setCategoryForm(null);
+      setEditingCategoryId(null);
+    } catch {
+      setError("No pudimos guardar la categoria. Revisa los campos e intenta otra vez.");
+    } finally {
+      setIsSavingCategory(false);
+    }
+  };
+
+  const changeCategoryStatus = async (category: AdminCategory) => {
+    setError("");
+    try {
+      if (category.active) {
+        await apiClient.put(`/admin/categories/${category.id}/deactivate`);
+        setCategories((current) => current.map((item) => item.id === category.id ? { ...item, active: false } : item));
+      } else {
+        const response = await apiClient.put<AdminCategory>(`/admin/categories/${category.id}`, { name: category.name, description: category.description, active: true });
+        setCategories((current) => current.map((item) => item.id === category.id ? response.data : item));
+      }
+    } catch {
+      setError("No pudimos actualizar el estado de la categoria.");
+    }
+  };
+
+  const changeOrderStatus = async (order: ApiOrder, status: "CANCELLED" | "SHIPPED" | "DELIVERED") => {
+    setError("");
+    try {
+      const response = await apiClient.put<ApiOrder>(`/admin/orders/${order.id}/status`, { status });
+      setOrders((current) => current.map((item) => item.id === order.id ? response.data : item));
+    } catch {
+      setError("No pudimos actualizar el estado del pedido.");
+    }
+  };
+
   return (
     <div className="site-page admin-page">
       <main className="admin-main section-shell">
@@ -1357,13 +1421,15 @@ function AdminPage() {
               <p className="admin-card-note">Los cambios se guardan en el catalogo real y se reflejan para los clientes.</p>
             </article>
 
-            <article className="admin-card"><div className="admin-card-heading"><div><span className="section-kicker">Catalogo</span><h2>Categorias</h2></div><Settings size={19} /></div><div className="admin-category-list">{categories.map((category) => <div key={category.id}><span>{category.name}</span><small className={category.active ? "admin-status admin-status--active" : "admin-status"}>{category.active ? "Activa" : "Inactiva"}</small></div>)}</div></article>
+            <article className="admin-card"><div className="admin-card-heading"><div><span className="section-kicker">Catalogo</span><h2>Categorias</h2></div><button className="admin-add-button" type="button" onClick={openNewCategory}><Plus size={16} /> Nueva</button></div><div className="admin-category-list">{categories.map((category) => <div key={category.id}><span>{category.name}</span><div className="admin-row-actions"><small className={category.active ? "admin-status admin-status--active" : "admin-status"}>{category.active ? "Activa" : "Inactiva"}</small><button type="button" onClick={() => openEditCategory(category)}>Editar</button><button type="button" onClick={() => changeCategoryStatus(category)}>{category.active ? "Desactivar" : "Activar"}</button></div></div>)}</div></article>
 
-            <article className="admin-card admin-card--wide"><div className="admin-card-heading"><div><span className="section-kicker">Operacion</span><h2>Pedidos recientes</h2></div><PackageCheck size={20} /></div><div className="admin-orders">{orders.length === 0 ? <p>Aun no hay pedidos registrados.</p> : orders.slice(0, 5).map((order) => <div key={order.id}><div><strong>Pedido #{order.id}</strong><span>{new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(new Date(order.createdAt))}</span></div><span className={`admin-status ${order.status === "PAID" ? "admin-status--active" : order.status === "PENDING" ? "admin-status--pending" : ""}`}>{order.status === "PAID" ? "Pagado" : order.status === "PENDING" ? "Pendiente" : "Cancelado"}</span><strong>S/ {Number(order.total).toFixed(2)}</strong></div>)}</div></article>
+            <article className="admin-card admin-card--wide"><div className="admin-card-heading"><div><span className="section-kicker">Operacion</span><h2>Pedidos recientes</h2></div><PackageCheck size={20} /></div><div className="admin-orders">{orders.length === 0 ? <p>Aun no hay pedidos registrados.</p> : orders.map((order) => { const status = order.status as string; return <div key={order.id}><div><strong>Pedido #{order.id}</strong><span>{order.userEmail ?? "Cliente"} · {new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(new Date(order.createdAt))}</span>{order.items && <small>{order.items.map((item) => `${item.quantity}× ${item.productName}`).join(", ")}</small>}</div><span className={`admin-status ${status === "PAID" || status === "DELIVERED" ? "admin-status--active" : status === "PENDING" ? "admin-status--pending" : ""}`}>{status === "PENDING" ? "Pendiente" : status === "PAID" ? "Pagado" : status === "SHIPPED" ? "Enviado" : status === "DELIVERED" ? "Entregado" : "Cancelado"}</span><strong>S/ {Number(order.total).toFixed(2)}</strong>{status !== "CANCELLED" && status !== "DELIVERED" && <select aria-label={`Estado del pedido ${order.id}`} defaultValue="" onChange={(event) => { const nextStatus = event.target.value as "CANCELLED" | "SHIPPED" | "DELIVERED"; if (nextStatus) changeOrderStatus(order, nextStatus); }}><option value="">Cambiar estado</option>{status === "PENDING" && <option value="CANCELLED">Cancelar</option>}{status === "PAID" && <option value="SHIPPED">Marcar enviado</option>}{status === "SHIPPED" && <option value="DELIVERED">Marcar entregado</option>}</select>}</div>; })}</div></article>
           </section>
         </>}
       </main>
       {productForm && <div className="product-modal-backdrop" role="presentation"><section aria-label={editingProductId ? "Editar producto" : "Nuevo producto"} className="product-modal" role="dialog"><div className="product-modal-heading"><div><span className="section-kicker">{editingProductId ? "Editar catalogo" : "Nuevo producto"}</span><h2>{editingProductId ? "Actualizar producto" : "Agregar producto"}</h2></div><button aria-label="Cerrar formulario" className="product-modal-close" type="button" onClick={() => setProductForm(null)}><X size={19} /></button></div><form className="product-form" onSubmit={saveProduct}><label>Nombre<input required value={productForm.name} onChange={(event) => setProductForm({ ...productForm, name: event.target.value })} /></label><label>Descripcion<textarea maxLength={600} value={productForm.description} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} /></label><div className="product-form-grid"><label>Precio (S/)<input min="0.01" required step="0.01" type="number" value={productForm.price} onChange={(event) => setProductForm({ ...productForm, price: event.target.value })} /></label><label>Stock<input min="0" required type="number" value={productForm.stock} onChange={(event) => setProductForm({ ...productForm, stock: event.target.value })} /></label></div><label>Categoria<select required value={productForm.categoryId} onChange={(event) => setProductForm({ ...productForm, categoryId: event.target.value })}><option value="">Selecciona una categoria</option>{categories.filter((category) => category.active).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>URL de imagen<input inputMode="url" placeholder="https://..." type="url" value={productForm.imageUrl} onChange={(event) => setProductForm({ ...productForm, imageUrl: event.target.value })} /></label>{productForm.imageUrl && <img alt="Vista previa del producto" className="product-image-preview" src={productForm.imageUrl} />}{editingProductId && <label className="product-active-toggle"><input checked={productForm.active} type="checkbox" onChange={(event) => setProductForm({ ...productForm, active: event.target.checked })} /> Producto activo</label>}<div className="product-form-actions"><button type="button" onClick={() => setProductForm(null)}>Cancelar</button><button className="admin-add-button" disabled={isSavingProduct} type="submit">{isSavingProduct ? "Guardando..." : "Guardar producto"}</button></div></form></section></div>}
+      {productForm && <div className="product-modal-backdrop" role="presentation"><section aria-label={editingProductId ? "Editar producto" : "Nuevo producto"} className="product-modal" role="dialog"><div className="product-modal-heading"><div><span className="section-kicker">{editingProductId ? "Editar catalogo" : "Nuevo producto"}</span><h2>{editingProductId ? "Actualizar producto" : "Agregar producto"}</h2></div><button aria-label="Cerrar formulario" className="product-modal-close" type="button" onClick={() => setProductForm(null)}><X size={19} /></button></div><form className="product-form" onSubmit={saveProduct}><label>Nombre<input required value={productForm.name} onChange={(event) => setProductForm({ ...productForm, name: event.target.value })} /></label><label>Descripcion<textarea maxLength={600} value={productForm.description} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} /></label><div className="product-form-grid"><label>Precio (S/)<input min="0.01" required step="0.01" type="number" value={productForm.price} onChange={(event) => setProductForm({ ...productForm, price: event.target.value })} /></label><label>Stock<input min="0" required type="number" value={productForm.stock} onChange={(event) => setProductForm({ ...productForm, stock: event.target.value })} /></label></div><label>Categoria<select required value={productForm.categoryId} onChange={(event) => setProductForm({ ...productForm, categoryId: event.target.value })}><option value="">Selecciona una categoria</option>{categories.filter((category) => category.active).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>Subir imagen<input accept="image/jpeg,image/png,image/webp" type="file" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; setIsSavingProduct(true); try { const formData = new FormData(); formData.append("file", file); const upload = await apiClient.post<{ imageUrl: string }>("/admin/uploads/products", formData, { headers: { "Content-Type": "multipart/form-data" } }); setProductForm({ ...productForm, imageUrl: upload.data.imageUrl }); } catch { setError("No pudimos subir la imagen. Verifica la configuracion de Storage."); } finally { setIsSavingProduct(false); } }} /></label><label>URL de imagen<input inputMode="url" placeholder="https://..." type="url" value={productForm.imageUrl} onChange={(event) => setProductForm({ ...productForm, imageUrl: event.target.value })} /></label>{productForm.imageUrl && <img alt="Vista previa del producto" className="product-image-preview" src={productForm.imageUrl} />}{editingProductId && <label className="product-active-toggle"><input checked={productForm.active} type="checkbox" onChange={(event) => setProductForm({ ...productForm, active: event.target.checked })} /> Producto activo</label>}<div className="product-form-actions"><button type="button" onClick={() => setProductForm(null)}>Cancelar</button><button className="admin-add-button" disabled={isSavingProduct} type="submit">{isSavingProduct ? "Guardando..." : "Guardar producto"}</button></div></form></section></div>}
+      {categoryForm && <div className="product-modal-backdrop" role="presentation"><section aria-label={editingCategoryId ? "Editar categoria" : "Nueva categoria"} className="product-modal" role="dialog"><div className="product-modal-heading"><div><span className="section-kicker">Catalogo</span><h2>{editingCategoryId ? "Actualizar categoria" : "Agregar categoria"}</h2></div><button aria-label="Cerrar formulario" className="product-modal-close" type="button" onClick={() => setCategoryForm(null)}><X size={19} /></button></div><form className="product-form" onSubmit={saveCategory}><label>Nombre<input required maxLength={80} value={categoryForm.name} onChange={(event) => setCategoryForm({ ...categoryForm, name: event.target.value })} /></label><label>Descripcion<textarea maxLength={300} value={categoryForm.description} onChange={(event) => setCategoryForm({ ...categoryForm, description: event.target.value })} /></label>{editingCategoryId && <label className="product-active-toggle"><input checked={categoryForm.active} type="checkbox" onChange={(event) => setCategoryForm({ ...categoryForm, active: event.target.checked })} /> Categoria activa</label>}<div className="product-form-actions"><button type="button" onClick={() => setCategoryForm(null)}>Cancelar</button><button className="admin-add-button" disabled={isSavingCategory} type="submit">{isSavingCategory ? "Guardando..." : "Guardar categoria"}</button></div></form></section></div>}
     </div>
   );
 }

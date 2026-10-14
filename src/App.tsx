@@ -32,8 +32,11 @@ import { useCartStore } from "./stores/cartStore";
 type ApiProduct = {
   id: number;
   name: string;
+  description: string | null;
   price: number;
   stock: number;
+  imageUrl: string | null;
+  categoryId: number;
   categoryName: string;
 };
 
@@ -1176,6 +1179,26 @@ type AdminCategory = {
   active: boolean;
 };
 
+type ProductForm = {
+  name: string;
+  description: string;
+  price: string;
+  stock: string;
+  imageUrl: string;
+  categoryId: string;
+  active: boolean;
+};
+
+const emptyProductForm = (categoryId = ""): ProductForm => ({
+  name: "",
+  description: "",
+  price: "",
+  stock: "0",
+  imageUrl: "",
+  categoryId,
+  active: true,
+});
+
 function AdminPage() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -1184,6 +1207,9 @@ function AdminPage() {
   const [orders, setOrders] = useState<ApiOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [productForm, setProductForm] = useState<ProductForm | null>(null);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [isSavingProduct, setIsSavingProduct] = useState(false);
 
   useEffect(() => {
     if (user?.role !== "ADMIN") {
@@ -1229,6 +1255,83 @@ function AdminPage() {
     navigate("/", { replace: true });
   };
 
+  const openNewProduct = () => {
+    const firstActiveCategory = categories.find((category) => category.active);
+    setEditingProductId(null);
+    setProductForm(emptyProductForm(firstActiveCategory ? String(firstActiveCategory.id) : ""));
+  };
+
+  const openEditProduct = (product: AdminProduct) => {
+    setEditingProductId(product.id);
+    setProductForm({
+      name: product.name,
+      description: product.description ?? "",
+      price: String(product.price),
+      stock: String(product.stock),
+      imageUrl: product.imageUrl ?? "",
+      categoryId: String(product.categoryId),
+      active: product.active,
+    });
+  };
+
+  const saveProduct = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!productForm) return;
+
+    setError("");
+    setIsSavingProduct(true);
+    const payload = {
+      name: productForm.name.trim(),
+      description: productForm.description.trim() || null,
+      price: Number(productForm.price),
+      stock: Number(productForm.stock),
+      imageUrl: productForm.imageUrl.trim() || null,
+      categoryId: Number(productForm.categoryId),
+      active: productForm.active,
+    };
+
+    try {
+      const response = editingProductId
+        ? await apiClient.put<AdminProduct>(`/admin/products/${editingProductId}`, payload)
+        : await apiClient.post<AdminProduct>("/admin/products", payload);
+
+      setProducts((current) => {
+        const withoutUpdated = current.filter((product) => product.id !== response.data.id);
+        return [...withoutUpdated, response.data].sort((first, second) => first.name.localeCompare(second.name));
+      });
+      setProductForm(null);
+      setEditingProductId(null);
+    } catch {
+      setError("No pudimos guardar el producto. Revisa los campos e intenta otra vez.");
+    } finally {
+      setIsSavingProduct(false);
+    }
+  };
+
+  const changeProductStatus = async (product: AdminProduct) => {
+    setError("");
+    try {
+      if (product.active) {
+        await apiClient.delete(`/admin/products/${product.id}`);
+        setProducts((current) => current.map((item) => item.id === product.id ? { ...item, active: false } : item));
+        return;
+      }
+
+      const response = await apiClient.put<AdminProduct>(`/admin/products/${product.id}`, {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        imageUrl: product.imageUrl,
+        categoryId: product.categoryId,
+        active: true,
+      });
+      setProducts((current) => current.map((item) => item.id === product.id ? response.data : item));
+    } catch {
+      setError("No pudimos actualizar el estado del producto.");
+    }
+  };
+
   return (
     <div className="site-page admin-page">
       <main className="admin-main section-shell">
@@ -1249,9 +1352,9 @@ function AdminPage() {
 
           <section className="admin-grid">
             <article className="admin-card admin-card--wide">
-              <div className="admin-card-heading"><div><span className="section-kicker">Inventario</span><h2>Productos</h2></div><span><ShoppingBag size={18} /> {products.length}</span></div>
-              <div className="admin-table" role="table"><div className="admin-table-row admin-table-row--head" role="row"><span>Producto</span><span>Categoria</span><span>Stock</span><span>Estado</span></div>{products.slice(0, 6).map((product) => <div className="admin-table-row" key={product.id} role="row"><strong>{product.name}</strong><span>{product.categoryName}</span><span className={product.stock <= 5 ? "admin-stock-low" : ""}>{product.stock} unidades</span><span className={product.active ? "admin-status admin-status--active" : "admin-status"}>{product.active ? "Activo" : "Inactivo"}</span></div>)}</div>
-              <p className="admin-card-note">La gestion para crear y editar productos se conectara a este resumen.</p>
+              <div className="admin-card-heading"><div><span className="section-kicker">Inventario</span><h2>Productos</h2></div><div className="admin-product-actions"><span><ShoppingBag size={18} /> {products.length}</span><button className="admin-add-button" type="button" onClick={openNewProduct}><Plus size={16} /> Nuevo producto</button></div></div>
+              <div className="admin-table admin-table--products" role="table"><div className="admin-table-row admin-table-row--head" role="row"><span>Producto</span><span>Categoria</span><span>Stock</span><span>Estado</span><span>Acciones</span></div>{products.map((product) => <div className="admin-table-row" key={product.id} role="row"><div className="admin-product-name">{product.imageUrl ? <img alt="" src={product.imageUrl} /> : <ShoppingBag size={16} />}<strong>{product.name}</strong></div><span>{product.categoryName}</span><span className={product.stock <= 5 ? "admin-stock-low" : ""}>{product.stock} unidades</span><span className={product.active ? "admin-status admin-status--active" : "admin-status"}>{product.active ? "Activo" : "Inactivo"}</span><div className="admin-row-actions"><button type="button" onClick={() => openEditProduct(product)}>Editar</button><button type="button" onClick={() => changeProductStatus(product)}>{product.active ? "Desactivar" : "Activar"}</button></div></div>)}</div>
+              <p className="admin-card-note">Los cambios se guardan en el catalogo real y se reflejan para los clientes.</p>
             </article>
 
             <article className="admin-card"><div className="admin-card-heading"><div><span className="section-kicker">Catalogo</span><h2>Categorias</h2></div><Settings size={19} /></div><div className="admin-category-list">{categories.map((category) => <div key={category.id}><span>{category.name}</span><small className={category.active ? "admin-status admin-status--active" : "admin-status"}>{category.active ? "Activa" : "Inactiva"}</small></div>)}</div></article>
@@ -1260,6 +1363,7 @@ function AdminPage() {
           </section>
         </>}
       </main>
+      {productForm && <div className="product-modal-backdrop" role="presentation"><section aria-label={editingProductId ? "Editar producto" : "Nuevo producto"} className="product-modal" role="dialog"><div className="product-modal-heading"><div><span className="section-kicker">{editingProductId ? "Editar catalogo" : "Nuevo producto"}</span><h2>{editingProductId ? "Actualizar producto" : "Agregar producto"}</h2></div><button aria-label="Cerrar formulario" className="product-modal-close" type="button" onClick={() => setProductForm(null)}><X size={19} /></button></div><form className="product-form" onSubmit={saveProduct}><label>Nombre<input required value={productForm.name} onChange={(event) => setProductForm({ ...productForm, name: event.target.value })} /></label><label>Descripcion<textarea maxLength={600} value={productForm.description} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} /></label><div className="product-form-grid"><label>Precio (S/)<input min="0.01" required step="0.01" type="number" value={productForm.price} onChange={(event) => setProductForm({ ...productForm, price: event.target.value })} /></label><label>Stock<input min="0" required type="number" value={productForm.stock} onChange={(event) => setProductForm({ ...productForm, stock: event.target.value })} /></label></div><label>Categoria<select required value={productForm.categoryId} onChange={(event) => setProductForm({ ...productForm, categoryId: event.target.value })}><option value="">Selecciona una categoria</option>{categories.filter((category) => category.active).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>URL de imagen<input inputMode="url" placeholder="https://..." type="url" value={productForm.imageUrl} onChange={(event) => setProductForm({ ...productForm, imageUrl: event.target.value })} /></label>{productForm.imageUrl && <img alt="Vista previa del producto" className="product-image-preview" src={productForm.imageUrl} />}{editingProductId && <label className="product-active-toggle"><input checked={productForm.active} type="checkbox" onChange={(event) => setProductForm({ ...productForm, active: event.target.checked })} /> Producto activo</label>}<div className="product-form-actions"><button type="button" onClick={() => setProductForm(null)}>Cancelar</button><button className="admin-add-button" disabled={isSavingProduct} type="submit">{isSavingProduct ? "Guardando..." : "Guardar producto"}</button></div></form></section></div>}
     </div>
   );
 }
